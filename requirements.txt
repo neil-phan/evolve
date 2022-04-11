@@ -1,4 +1,4 @@
-# General requirements
-pytorch
-numpy
-matplotlib
+torch==1.11.0
+pyqt5==5.15.6
+numpy==1.22.3
+matplotlib==3.5.1
