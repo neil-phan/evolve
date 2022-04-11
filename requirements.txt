@@ -1,0 +1,4 @@
+# General requirements
+pytorch
+numpy
+matplotlib
