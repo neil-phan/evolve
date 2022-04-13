@@ -2,7 +2,7 @@ import torch
 import math
 
 from math import uniform
-        
+
 class Food:
     """
     Generated food in the environment for the organisms to feed on.
