@@ -31,7 +31,8 @@ class Organism:
         name (str): the name of the organism, default is None
         """
         # Environmental starting traits
-        self.rad = 20
+        self.color = "red"
+        self.rad = 15
         self.width = 20
         self.name = name                                            # Name
         self.r = random.randrange(0, 360)                                       # View
@@ -50,8 +51,18 @@ class Organism:
         # self.peripheral = random.randrange(90, attributes['perp_max'])       # Peripheral Vision
         # self.fitness = 0                                            # Fitness
     
-    def draw(self, win, color):
-        pygame.draw.circle(win, color, (self.x, self.y), self.rad, self.width)
+    def draw(self, win):
+        pygame.draw.circle(win, self.color, (self.x, self.y), self.rad, self.width)
         
+    def move(self, xmax, ymax):
+        self.x += random.randrange(-5, 6)
+        self.y += random.randrange(-5, 6)
+        # Set the bounds
+        if self.x < 0: self.x = 0
+        elif self.x > xmax: self.x = xmax
+        if self.y < 0: self.y = 0
+        elif self.y > ymax: self.y = ymax
+
+
     def think(self):
-        return
+        pass

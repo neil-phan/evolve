@@ -1,6 +1,6 @@
-import math
+import pygame
+import random
 
-from math import uniform
 
 class Food:
     """
@@ -15,7 +15,7 @@ class Food:
     can_eat (bool): determines if the food is visible to the organism
     
     """
-    def __init__(self, attributes, env_map):
+    def __init__(self, attributes):
         """
         Initializes a food object in a random (x, y) location on env_map.
         
@@ -24,22 +24,28 @@ class Food:
         attributes (dict): a dictionary of attributes to set the food with
         env_map (object): the environment with dimensions (x, y)
         """
-        self.x = uniform(attributes['x_min'], attributes['x_max'])  # Starting X
-        self.y = uniform(attributes['y_min'], attributes['y_max'])  # Starting Y
-        self.energy = uniform(1, attributes['food_max'])
-        self.can_eat = 1
+        self.color = "green"
+        self.rad = 5
+        self.width = 5
+        self.x = random.randrange(0, attributes['x_max'])  # Starting X
+        self.y = random.randrange(0, attributes['y_max'])  # Starting Y
+        # self.energy = random.randrange(1, attributes['food_max'])
+        # self.can_eat = 1
 
 
-    def respawn(self, attributes):
-        """
-        Respawn the food object in a random (x, y) location on env_map.
+    def draw(self, win):
+        pygame.draw.circle(win, self.color, (self.x, self.y), self.rad, self.width)
+
+    # def respawn(self, attributes):
+    #     """
+    #     Respawn the food object in a random (x, y) location on env_map.
         
-        Parameters
-        ----------
-        attributes (dict): a dictionary of attributes to set the food with
-        """
-        self.x = uniform(attributes['x_min'], attributes['x_max'])
-        self.y = uniform(attributes['y_min'], attributes['y_max'])
-        self.energy = uniform(1, attributes['food_max'])
-        self.can_eat = 1
+    #     Parameters
+    #     ----------
+    #     attributes (dict): a dictionary of attributes to set the food with
+    #     """
+    #     self.x = random.randrange(attributes['x_min'], attributes['x_max'])
+    #     self.y = random.randrange(attributes['y_min'], attributes['y_max'])
+    #     self.energy = random.randrange(1, attributes['food_max'])
+    #     self.can_eat = 1
     

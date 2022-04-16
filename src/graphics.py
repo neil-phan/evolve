@@ -1,6 +1,6 @@
 from curses.textpad import rectangle
 import pygame
-from simple import organism
+from simple import organism, food
 
 #initialize pygame
 pygame.init()
@@ -11,9 +11,15 @@ pygame.display.set_caption("Evolve")
 FPS = 60
 BG_COLOR = "white"
 INITIAL_ORGANISM_COUNT = 10
-ORGANISM_COLOR = "red"
+INITIAL_FOOD_COUNT = 50
 
 
+def make_foods(N):
+    foods = []
+    for i in range (N):
+        f = food.Food({'x_max': WIDTH, 'y_max': HEIGHT})
+        foods.append(f)
+    return foods
 
 def make_organisms(N):
     orgs = []
@@ -22,11 +28,15 @@ def make_organisms(N):
         orgs.append(org)
     return orgs
 
-def draw(orgs):
+def draw(orgs, foods):
     WINDOW.fill(BG_COLOR)
 
     for org in orgs:
-        org.draw(WINDOW, ORGANISM_COLOR)
+        org.draw(WINDOW)
+        org.move(WIDTH, HEIGHT)
+    for food in foods:
+        food.draw(WINDOW)
+
     pygame.display.update()
 
 #create game loop
@@ -35,6 +45,7 @@ def main():
     running = True
 
     orgs = make_organisms(INITIAL_ORGANISM_COUNT)
+    foods = make_foods(INITIAL_FOOD_COUNT)
 
     while running:
         clock.tick(FPS) #   Caps game frames at 60fps
@@ -42,7 +53,7 @@ def main():
             if event.type == pygame.QUIT:
                 running = False
 
-        draw(orgs)
+        draw(orgs, foods)
 
 if __name__ == '__main__':
     main()
