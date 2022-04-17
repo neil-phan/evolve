@@ -25,16 +25,17 @@ class Food:
         env_map (object): the environment with dimensions (x, y)
         """
         self.color = "green"
-        self.rad = 5
-        self.width = 5
+        self.rad = 5    #   Radius from the center
+        self.width = 5  #   Width of the circle outline
         self.x = random.randrange(0, attributes['x_max'])  # Starting X
         self.y = random.randrange(0, attributes['y_max'])  # Starting Y
+        self.center = (self.x, self.y)
         # self.energy = random.randrange(1, attributes['food_max'])
         # self.can_eat = 1
 
 
     def draw(self, win):
-        pygame.draw.circle(win, self.color, (self.x, self.y), self.rad, self.width)
+        pygame.draw.circle(win, self.color, self.center, self.rad, self.width)
 
     # def respawn(self, attributes):
     #     """

@@ -34,8 +34,20 @@ def draw(orgs, foods):
     for org in orgs:
         org.draw(WINDOW)
         org.move(WIDTH, HEIGHT)
+        # org.mouse_move()
+
     for food in foods:
         food.draw(WINDOW)
+    
+    #   COLLISION DETECTION
+    for org in orgs:
+        for food in foods:
+            if org.is_eating(food):
+                foods.remove(food)
+
+                #Eating outcomes here
+                org.rad+=2
+                org.speed+=2
 
     pygame.display.update()
 

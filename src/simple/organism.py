@@ -1,4 +1,5 @@
 # Organism 
+import math
 import random
 import pygame
 
@@ -33,7 +34,7 @@ class Organism:
         # Environmental starting traits
         self.color = "red"
         self.rad = 15
-        self.width = 20
+        self.speed = 5
         self.name = name                                            # Name
         self.r = random.randrange(0, 360)                                       # View
         self.x = random.randrange(0, env_map['x_max'])                       # Starting X 
@@ -52,17 +53,33 @@ class Organism:
         # self.fitness = 0                                            # Fitness
     
     def draw(self, win):
-        pygame.draw.circle(win, self.color, (self.x, self.y), self.rad, self.width)
+        pygame.draw.circle(win, self.color, (self.x, self.y), self.rad)
         
     def move(self, xmax, ymax):
-        self.x += random.randrange(-5, 6)
-        self.y += random.randrange(-5, 6)
+        self.x += random.randrange(-self.speed, self.speed+1)
+        self.y += random.randrange(-self.speed, self.speed+1)
         # Set the bounds
         if self.x < 0: self.x = 0
         elif self.x > xmax: self.x = xmax
         if self.y < 0: self.y = 0
         elif self.y > ymax: self.y = ymax
 
+        self.center = (self.x, self.y)
+
+    def mouse_move(self):
+        pos = pygame.mouse.get_pos()
+        self.x = pos[0]
+        self.y = pos[1]
+    
+    def get_distance(self, obj):
+        dist = math.hypot(obj.x - self.x, obj.y-self.y)
+        return dist
+            
+    def is_eating(self, food):
+        dist = self.get_distance(food)
+        if dist <= food.rad + self.rad:
+            return True
+        return False
 
     def think(self):
         pass
