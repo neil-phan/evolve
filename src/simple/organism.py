@@ -3,8 +3,14 @@ import math
 import random
 import pygame
 
+pygame.font.init()
 
 class Organism:
+    FULL_AMOUNT = 2
+    FONT = pygame.font.SysFont('Comic Sans MS', 10)
+    MUTATION_RATE = 0.10
+
+    # FONT = pygame.font.SysFont('Comic Sans MS', 20)
     """
     A simple organism with simple traits.
     
@@ -21,9 +27,9 @@ class Organism:
     peripheral (int): the angle of view the organism can see
     fitness (int): how much food the organism has consumed
     """
-    def __init__(self, env_map, name=None):
+    def __init__(self, color, env_map, coords=None, speed=None, rad=None):
         """
-        Initializes an organism object in a random.randrange (x, y) location on env_map.
+        Initializes an organism object in a random.uniform (x, y) location on env_map.
         
         Parameters
         ----------
@@ -32,32 +38,44 @@ class Organism:
         name (str): the name of the organism, default is None
         """
         # Environmental starting traits
-        self.color = "red"
-        self.rad = 15
-        self.speed = 5
-        self.name = name                                            # Name
-        self.r = random.randrange(0, 360)                                       # View
-        self.x = random.randrange(0, env_map['x_max'])                       # Starting X 
-        self.y = random.randrange(0, env_map['y_max'])                       # Starting Y
+        self.color = color
+        self.speed = speed if speed != None else random.uniform(1,15)
+        self.rad = rad if rad != None else random.uniform(10,30)
+        self.num_eaten = 0
+        self.r = random.uniform(0, 360)                                       # View
+        if coords == None:
+            self.x = random.randrange(0, env_map['x_max'])                       # Starting X 
+            self.y = random.randrange(0, env_map['y_max'])                       # Starting Y
+        else:
+            self.x = coords[0]
+            self.y = coords[1]
+        self.text = self.FONT.render(f'{round(self.speed, 2)} : {round(self.rad, 2)}', 1, 'black')
+        # text = FONT.render("{V}, 1, 'black')
         
         # Customizable traits for the user to select in their attributes map
         # if (attributes['v_max'] is not None):                       # Velocity
-        #     self.velocity = random.randrange(0, attributes['velo_max'])
+        #     self.velocity = random.uniform(0, attributes['velo_max'])
         # if (attributes['s_max'] is not None):                       # Strength
-        #     self.strength = random.randrange(0, attributes['str_max'])
+        #     self.strength = random.uniform(0, attributes['str_max'])
         
         # # Evolutionary traits
         # self.see_food = False                                       # Can see food
-        # self.vision = random.randrange(1, attributes['vis_max'])             # Vision
-        # self.peripheral = random.randrange(90, attributes['perp_max'])       # Peripheral Vision
+        # self.vision = random.uniform(1, attributes['vis_max'])             # Vision
+        # self.peripheral = random.uniform(90, attributes['perp_max'])       # Peripheral Vision
         # self.fitness = 0                                            # Fitness
     
     def draw(self, win):
         pygame.draw.circle(win, self.color, (self.x, self.y), self.rad)
+        win.blit(self.text, (self.x-self.text.get_width()//2, self.y-self.text.get_height()//2))
         
+    def is_full(self):
+        if self.num_eaten >=self.FULL_AMOUNT:
+            return True
+        return False
+
     def move(self, xmax, ymax):
-        self.x += random.randrange(-self.speed, self.speed+1)
-        self.y += random.randrange(-self.speed, self.speed+1)
+        self.x += random.uniform(-self.speed, self.speed)
+        self.y += random.uniform(-self.speed, self.speed)
         # Set the bounds
         if self.x < 0: self.x = 0
         elif self.x > xmax: self.x = xmax
@@ -75,11 +93,21 @@ class Organism:
         dist = math.hypot(obj.x - self.x, obj.y-self.y)
         return dist
             
-    def is_eating(self, food):
-        dist = self.get_distance(food)
-        if dist <= food.rad + self.rad:
+    def is_eating(self, obj):
+        dist = self.get_distance(obj)
+        if dist <= obj.rad + self.rad and self.rad > obj.rad*1.25:
+            self.num_eaten+=1
             return True
         return False
+    
+    def reproduce(self):
+        child = Organism(self.color, 
+                        {'x_max':1, 'y_max':1}, 
+                        (self.x+10, self.y+10),
+                         self.speed * random.uniform(1-self.MUTATION_RATE, 1+self.MUTATION_RATE),
+                         self.rad * random.uniform(1-self.MUTATION_RATE, 1+self.MUTATION_RATE)
+                        )
+        return child
 
     def think(self):
         pass
