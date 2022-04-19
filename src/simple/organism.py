@@ -17,15 +17,12 @@ class Organism:
     Attributes
     ----------
     name (str): the name of the organism
-    r (int): the angle which the organism is looking at
     x (int): the current x position of the organism on env_map
     y (int): the current y position of the organism on env_map
     velocity (int): the maximum velocity of the organism
-    strength (int): the maximum strength of the organism
-    see_food (bool): determines if the organism sees food in its vision
     vision (int): how far the organism can see in the distance
-    peripheral (int): the angle of view the organism can see
     fitness (int): how much food the organism has consumed
+    energy (int): the amount of energy the organism can utilize
     """
     def __init__(self, color, env_map, coords=None, range=None, speed=None, rad=None):
         """
