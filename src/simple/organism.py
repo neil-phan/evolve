@@ -8,7 +8,7 @@ pygame.font.init()
 class Organism:
     FULL_AMOUNT = 2
     FONT = pygame.font.SysFont('Comic Sans MS', 10)
-    MUTATION_RATE = 0.10
+    MUTATION_RATE = 0.30
 
     # FONT = pygame.font.SysFont('Comic Sans MS', 20)
     """
@@ -27,7 +27,7 @@ class Organism:
     peripheral (int): the angle of view the organism can see
     fitness (int): how much food the organism has consumed
     """
-    def __init__(self, color, env_map, coords=None, speed=None, rad=None):
+    def __init__(self, color, env_map, coords=None, range=None, speed=None, rad=None):
         """
         Initializes an organism object in a random.uniform (x, y) location on env_map.
         
@@ -38,8 +38,9 @@ class Organism:
         name (str): the name of the organism, default is None
         """
         # Environmental starting traits
+        self.range = range if range != None else random.randrange(100, 800)
         self.color = color
-        self.speed = speed if speed != None else random.uniform(1,15)
+        self.speed = speed if speed != None else random.uniform(1,3)
         self.rad = rad if rad != None else random.uniform(10,30)
         self.num_eaten = 0
         self.r = random.uniform(0, 360)                                       # View
@@ -66,6 +67,7 @@ class Organism:
     
     def draw(self, win):
         pygame.draw.circle(win, self.color, (self.x, self.y), self.rad)
+        pygame.draw.circle(win, 'black', (self.x, self.y), self.range, 1)
         win.blit(self.text, (self.x-self.text.get_width()//2, self.y-self.text.get_height()//2))
         
     def is_full(self):
@@ -83,6 +85,30 @@ class Organism:
         elif self.y > ymax: self.y = ymax
 
         self.center = (self.x, self.y)
+    
+    def length(self, x, y):
+        return (x**2 + y**2) ** 0.5
+    
+    def norm(self, x, y):
+        _len = self.length(x, y)
+        return x/_len, y/_len
+
+    def target_move(self, foods, xmax, ymax):
+        pos = pygame.math.Vector2(self.x, self.y)
+        closest_food = min([food for food in foods], key=lambda food: pos.distance_to(pygame.math.Vector2(food.x, food.y)))
+
+        fx, fy = closest_food.x, closest_food.y
+
+        # fx, fy = foods[0].x, foods[0].y
+        dx, dy = fx - self.x, fy - self.y
+        _len = self.length(dx, dy)
+        direction = self.norm(dx, dy)
+        if _len <= self.range:
+            self.x += direction[0] * self.speed
+            self.y += direction[1] * self.speed
+        else:
+            self.move(xmax, ymax)
+            
 
     def mouse_move(self):
         pos = pygame.mouse.get_pos()
@@ -104,6 +130,7 @@ class Organism:
         child = Organism(self.color, 
                         {'x_max':1, 'y_max':1}, 
                         (self.x+10, self.y+10),
+                         self.range * random.uniform(1-self.MUTATION_RATE, 1+self.MUTATION_RATE),
                          self.speed * random.uniform(1-self.MUTATION_RATE, 1+self.MUTATION_RATE),
                          self.rad * random.uniform(1-self.MUTATION_RATE, 1+self.MUTATION_RATE)
                         )
