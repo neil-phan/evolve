@@ -6,7 +6,7 @@ import random
 pygame.init()
 pygame.font.init()
 WIDTH, HEIGHT = 1200, 1000
-WINDOW = pygame.display.set_mode((WIDTH, HEIGHT))
+WINDOW = pygame.display.set_mode((WIDTH, HEIGHT), pygame.RESIZABLE)
 pygame.display.set_caption("Evolve")
 
 FPS = 60
