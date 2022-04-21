@@ -1,5 +1,5 @@
 import pygame
-from simple import organism, food
+from simple import organism, food, tree
 import random
 
 #initialize pygame
@@ -13,21 +13,9 @@ FPS = 60
 BG_COLOR = "white"
 INITIAL_ORGANISM_COUNT = 10
 INITIAL_FOOD_COUNT = 20
+INITIAL_TREE_COUNT = 5
 FONT = pygame.font.SysFont('Comic Sans MS', 30)
 SUB_FONT = pygame.font.SysFont('Comic Sans MS', 15)
-
-def make_foods(N):
-    foods = []
-    for i in range (N):
-        f = food.Food({'x_max': WIDTH, 'y_max': HEIGHT})
-        foods.append(f)
-    return foods
-
-def random_color():
-    r = random.randrange(0, 256)
-    g = random.randrange(0, 256)
-    b = random.randrange(0, 256)
-    return (r,g,b)
 
 def make_organisms(N):
     orgs = []
@@ -36,6 +24,33 @@ def make_organisms(N):
         org = organism.Organism(color, {'x_max': WIDTH, 'y_max': HEIGHT})
         orgs.append(org)
     return orgs
+
+def make_foods(N):
+    foods = []
+    attributes = {
+        'x_min': 0,
+        'y_min': 0,
+        'x_max': WIDTH,
+        'y_max': HEIGHT
+    }
+    
+    for i in range(N):
+        f = food.Food(attributes)
+        foods.append(f)
+    return foods
+
+def make_trees(N):
+    trees = []
+    for i in range(N):
+        t = tree.Tree({'x_max': WIDTH, 'y_max': HEIGHT})
+        trees.append(t)
+    return trees
+
+def random_color():
+    r = random.randrange(0, 256)
+    g = random.randrange(0, 256)
+    b = random.randrange(0, 256)
+    return (r,g,b)
 
 def generation_done(orgs):
     for org in orgs:
@@ -62,7 +77,7 @@ def make_graph(orgs):
     return round(average_speed / count, 2), round(average_size / count, 2), round(average_range / count, 2)
         
 
-def draw(orgs, foods, generation_num):
+def draw(orgs, foods, trees, generation_num):
     WINDOW.fill(BG_COLOR)
 
     for org in orgs:
@@ -74,6 +89,8 @@ def draw(orgs, foods, generation_num):
     for food in foods:
         food.draw(WINDOW)
     
+    for tree in trees:
+        tree.draw(WINDOW)
     #   COLLISION DETECTION
     for org in orgs:
         for food in foods:
@@ -101,8 +118,8 @@ def main():
     pygame.time.set_timer(pygame.USEREVENT, 1000)
     orgs = make_organisms(INITIAL_ORGANISM_COUNT)
     foods = make_foods(INITIAL_FOOD_COUNT)
+    trees = make_trees(INITIAL_TREE_COUNT)
     
-
     generation_num = 1
     while running:
         clock.tick(FPS) #   Caps game frames at 60fps
@@ -114,13 +131,26 @@ def main():
                 if counter == 0:
                     generation_num+=1
                     generation_done(orgs)
-                    foods = make_foods(10)
+                    foods += make_foods(10)
                     counter = 15
-
+                    
+                # Every 5 seconds trees spawn food within its radius
+                if counter % 1 == 0:
+                    for tree in trees:
+                        x, y, r = tree.x, tree.y, tree.rad
+                        attributes = {
+                            'x_min': tree.x - (3*tree.rad),
+                            'y_min': tree.y - (3*tree.rad),
+                            'x_max': tree.x +(3*tree.rad),
+                            'y_max': tree.y + (3*tree.rad)
+                        }
+                        for i in range(1):
+                            f = food.Food(attributes)
+                            foods.append(f)
             if event.type == pygame.QUIT:
                 running = False
 
-        draw(orgs, foods, generation_num)
+        draw(orgs, foods, trees, generation_num)
         if len(foods) == 0: 
             generation_num+=1
             generation_done(orgs)

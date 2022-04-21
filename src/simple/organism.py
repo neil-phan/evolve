@@ -9,8 +9,6 @@ class Organism:
     FULL_AMOUNT = 2
     FONT = pygame.font.SysFont('Comic Sans MS', 10)
     MUTATION_RATE = 0.30
-
-    # FONT = pygame.font.SysFont('Comic Sans MS', 20)
     """
     A simple organism with simple traits.
     
@@ -40,7 +38,7 @@ class Organism:
         self.speed = speed if speed != None else random.uniform(1,3)
         self.rad = rad if rad != None else random.uniform(10,30)
         self.num_eaten = 0
-        self.r = random.uniform(0, 360)                                       # View
+        self.r = random.uniform(0, 360)                                          # View
         if coords == None:
             self.x = random.randrange(0, env_map['x_max'])                       # Starting X 
             self.y = random.randrange(0, env_map['y_max'])                       # Starting Y
@@ -105,8 +103,7 @@ class Organism:
             self.y += direction[1] * self.speed
         else:
             self.move(xmax, ymax)
-            
-
+        
     def mouse_move(self):
         pos = pygame.mouse.get_pos()
         self.x = pos[0]

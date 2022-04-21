@@ -26,11 +26,10 @@ class Food:
         self.color = "green"
         self.rad = 5    #   Radius from the center
         self.width = 5  #   Width of the circle outline
-        self.x = random.randrange(0, attributes['x_max'])  # Starting X
-        self.y = random.randrange(0, attributes['y_max'])  # Starting Y
+        self.x = random.randrange(attributes['x_min'], attributes['x_max'])  # Starting X
+        self.y = random.randrange(attributes['y_min'], attributes['y_max'])  # Starting Y
         self.center = (self.x, self.y)
-        # self.energy = random.randrange(1, attributes['food_max'])
-        # self.can_eat = 1
+       #self.energy = random.randrange(1, attributes['food_max'])
 
 
     def draw(self, win):
