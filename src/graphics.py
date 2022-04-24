@@ -5,8 +5,11 @@ import random
 #initialize pygame
 pygame.init()
 pygame.font.init()
-WIDTH, HEIGHT = 1200, 1000
-WINDOW = pygame.display.set_mode((WIDTH, HEIGHT), pygame.RESIZABLE)
+# SIM_WIDTH, HEIGHT = 800, 600
+WINDOW = pygame.display.set_mode()
+WIDTH, HEIGHT = WINDOW.get_size()
+offset = WIDTH // 3
+SIM_WIDTH = WIDTH - offset
 pygame.display.set_caption("Evolve")
 
 FPS = 60
@@ -16,10 +19,14 @@ INITIAL_FOOD_COUNT = 20
 FONT = pygame.font.SysFont('Comic Sans MS', 30)
 SUB_FONT = pygame.font.SysFont('Comic Sans MS', 15)
 
+menu_surface = pygame.Surface((offset, HEIGHT))
+menu_surface.fill('aliceblue')
+menu_rect = menu_surface.get_rect(topleft=(SIM_WIDTH, 0))
+
 def make_foods(N):
     foods = []
     for i in range (N):
-        f = food.Food({'x_max': WIDTH, 'y_max': HEIGHT})
+        f = food.Food({'x_max': SIM_WIDTH, 'y_max': HEIGHT})
         foods.append(f)
     return foods
 
@@ -33,7 +40,7 @@ def make_organisms(N):
     orgs = []
     for i in range (N):
         color = random_color()
-        org = organism.Organism(color, {'x_max': WIDTH, 'y_max': HEIGHT})
+        org = organism.Organism(color, {'x_max': SIM_WIDTH, 'y_max': HEIGHT})
         orgs.append(org)
     return orgs
 
@@ -67,8 +74,8 @@ def draw(orgs, foods, generation_num):
 
     for org in orgs:
         org.draw(WINDOW)
-        # org.move(WIDTH, HEIGHT)
-        org.target_move(foods, WIDTH, HEIGHT)
+        # org.move(SIM_WIDTH, HEIGHT)
+        org.target_move(foods, SIM_WIDTH, HEIGHT)
         # org.mouse_move()
 
     for food in foods:
@@ -88,8 +95,11 @@ def draw(orgs, foods, generation_num):
     speed, size, rng = make_graph(orgs)
     text = FONT.render(f"Generation: {generation_num}", 1, 'black')
     graph_text = SUB_FONT.render(f"Avg Gen Speed: {speed}| Avg Gen Size: {size} | Avg Gen Range: {rng}", 1, 'black')
-    WINDOW.blit(text, (WIDTH-10-text.get_width(), 10))
-    WINDOW.blit(graph_text, (WIDTH-10-graph_text.get_width(), 50))
+    WINDOW.blit(text, (SIM_WIDTH-10-text.get_width(), 10))
+    WINDOW.blit(graph_text, (SIM_WIDTH-10-graph_text.get_width(), 50))
+    WINDOW.blit(menu_surface, menu_rect)
+    pygame.draw.line(WINDOW, 'black', (SIM_WIDTH, 0), (SIM_WIDTH, HEIGHT), 1)
+    pygame.draw.line(WINDOW, 'black', (SIM_WIDTH, HEIGHT // 2), (WIDTH, HEIGHT // 2), 1)
     pygame.display.update()
 
 #create game loop
