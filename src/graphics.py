@@ -1,5 +1,6 @@
 import pygame
 from simple import organism, food, tree
+import numpy as np
 import random
 
 #initialize pygame
@@ -37,6 +38,9 @@ TREE_REPLENISH_FOOD = 2
 # Pygame variables
 FONT = pygame.font.SysFont('Comic Sans MS', 30)
 SUB_FONT = pygame.font.SysFont('Comic Sans MS', 15)
+
+# Graphing variables
+DATA = np.empty()
 
 # Create N organisms with unique traits
 def make_organisms(N):
@@ -117,6 +121,7 @@ def draw(orgs, foods, trees, generation_num):
 
 
     speed, size, rng = make_graph(orgs)
+    np.append(DATA, (speed, size, rng))
     text = FONT.render(f"Generation: {generation_num}", 1, 'black')
     graph_text = SUB_FONT.render(f"Avg Speed: {speed}| Avg Size: {size} | Avg Range: {rng}", 1, 'black')
     WINDOW.blit(text, (WIDTH-10-text.get_width(), 10))
