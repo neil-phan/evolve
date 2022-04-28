@@ -30,7 +30,7 @@ class Food:
         self.y = random.randrange(attributes['y_min'], attributes['y_max'])  # Starting Y
         self.center = (self.x, self.y)
         self.energy = random.randrange(1, energy_max) if energy_max != None else 1
-
+        self.decay = 0
 
     def draw(self, win):
         pygame.draw.circle(win, self.color, self.center, self.rad, self.width)

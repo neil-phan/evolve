@@ -1,6 +1,7 @@
 import pygame
 from simple import organism, food, tree
 import numpy as np
+import matplotlib.pyplot as plt
 import random
 
 #initialize pygame
@@ -21,6 +22,7 @@ GEN_TIMER = 15
 # Organism variables
 FITNESS_COST = 1
 REPRODUCTION_COST = 15
+LITTER_COST = 5
 LABOR_COST = 7
 DEATH = 0
 SIZE_COST = 15
@@ -30,6 +32,7 @@ SPEED_COST = 3
 ENERGY_MAX = 4
 FOOD_REPLENISH_FOOD = 5
 FOOD_REPLENISH_TIME = 5
+FOOD_SPOIL = 20
 
 # Tree variables
 TREE_REPLENISH_TIME = 2
@@ -40,7 +43,7 @@ FONT = pygame.font.SysFont('Comic Sans MS', 30)
 SUB_FONT = pygame.font.SysFont('Comic Sans MS', 15)
 
 # Graphing variables
-DATA = np.empty()
+DATA = np.empty(0)
 
 # Create N organisms with unique traits
 def make_organisms(N):
@@ -141,7 +144,7 @@ def main():
     
     generation_num = 1
     while running:
-        clock.tick(FPS) #   Caps game frames at 60fps
+        clock.tick(FPS) #   Caps game frames at desired FPS
         for event in pygame.event.get():
             if event.type == pygame.USEREVENT:
                 counter += 1
@@ -159,13 +162,13 @@ def main():
                     org.fitness -= FITNESS_COST + float(org.rad / SIZE_COST)
                     + float(org.speed / SPEED_COST) 
                     print(org.fitness)
-                    if org.fitness >= REPRODUCTION_COST:
+                    if org.fitness >= (REPRODUCTION_COST+(LITTER_COST*org.litter_size)-LITTER_COST):
                         child = org.reproduce()
                         orgs.append(child)
-                        org.fitness -= LABOR_COST # The costs of labor
+                        org.fitness -= LABOR_COST + (LITTER_COST * org.litter_size) - LITTER_COST
                     if org.fitness <= DEATH:
                         orgs.remove(org) # DEAD
-                    
+                        
                 # Every 5 seconds trees spawn food within its radius
                 if counter % TREE_REPLENISH_TIME == 0:
                     for tree in trees:
@@ -179,6 +182,12 @@ def main():
                             f = food.Food(attributes, energy_max=ENERGY_MAX)
                             foods.append(f)
                             
+                # Spoiling food to avoid having clusters of food if no organisms contest it
+                for f in foods:
+                    f.decay += 1
+                    if f.decay == FOOD_SPOIL:
+                        foods.remove(f)
+                        
             if event.type == pygame.QUIT:
                 running = False
                 

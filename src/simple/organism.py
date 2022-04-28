@@ -23,7 +23,7 @@ class Organism:
     fitness (int): how much food the organism has consumed
     energy (int): the amount of energy the organism can utilize
     """
-    def __init__(self, color, env_map, coords=None, rnge=None, speed=None, rad=None):
+    def __init__(self, color, env_map, coords=None, rnge=None, speed=None, rad=None, repro=None):
         """
         Initializes an organism object in a random.uniform (x, y) location on env_map.
         
@@ -47,19 +47,7 @@ class Organism:
             self.x = coords[0]
             self.y = coords[1]
         self.text = self.FONT.render(f'{round(self.speed, 2)} : {round(self.rad, 2)} : {round(self.fitness, 1)}', 1, 'black')
-        # text = FONT.render("{V}, 1, 'black')
-        
-        # Customizable traits for the user to select in their attributes map
-        # if (attributes['v_max'] is not None):                       # Velocity
-        #     self.velocity = random.uniform(0, attributes['velo_max'])
-        # if (attributes['s_max'] is not None):                       # Strength
-        #     self.strength = random.uniform(0, attributes['str_max'])
-        
-        # # Evolutionary traits
-        # self.see_food = False                                       # Can see food
-        # self.vision = random.uniform(1, attributes['vis_max'])             # Vision
-        # self.peripheral = random.uniform(90, attributes['perp_max'])       # Peripheral Vision
-        # self.fitness = 0                                            # Fitness
+        self.litter_size = random.randrange(1, 3)
     
     def draw(self, win):
         pygame.draw.circle(win, self.color, (self.x, self.y), self.rad)
