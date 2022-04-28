@@ -22,6 +22,8 @@ FITNESS_COST = 1
 REPRODUCTION_COST = 15
 LABOR_COST = 7
 DEATH = 0
+SIZE_COST = 15
+SPEED_COST = 3
 
 # Food variables
 ENERGY_MAX = 4
@@ -149,7 +151,9 @@ def main():
                     
                 # decrease fitness score for every tick
                 for org in orgs:
-                    org.fitness -= FITNESS_COST
+                    org.fitness -= FITNESS_COST + float(org.rad / SIZE_COST)
+                    + float(org.speed / SPEED_COST) 
+                    print(org.fitness)
                     if org.fitness >= REPRODUCTION_COST:
                         child = org.reproduce()
                         orgs.append(child)
