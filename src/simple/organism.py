@@ -1,5 +1,6 @@
 # Organism 
 import math
+import numpy as np
 import random
 import pygame
 
@@ -22,7 +23,7 @@ class Organism:
     fitness (int): how much food the organism has consumed
     energy (int): the amount of energy the organism can utilize
     """
-    def __init__(self, color, env_map, coords=None, range=None, speed=None, rad=None):
+    def __init__(self, color, env_map, coords=None, rnge=None, speed=None, rad=None):
         """
         Initializes an organism object in a random.uniform (x, y) location on env_map.
         
@@ -33,19 +34,19 @@ class Organism:
         name (str): the name of the organism, default is None
         """
         # Environmental starting traits
-        self.range = range if range != None else random.randrange(100, 800)
+        self.range = rnge if rnge != None else random.randrange(100, 800)
         self.color = color
         self.speed = speed if speed != None else random.uniform(1,3)
         self.rad = rad if rad != None else random.uniform(10,30)
-        self.num_eaten = 0
-        self.r = random.uniform(0, 360)                                          # View
+        self.fitness = 10.0                                                        # Energy levels
+        self.r = random.uniform(0, 360)                                          # Current direction
         if coords == None:
             self.x = random.randrange(0, env_map['x_max'])                       # Starting X 
             self.y = random.randrange(0, env_map['y_max'])                       # Starting Y
         else:
             self.x = coords[0]
             self.y = coords[1]
-        self.text = self.FONT.render(f'{round(self.speed, 2)} : {round(self.rad, 2)}', 1, 'black')
+        self.text = self.FONT.render(f'{round(self.speed, 2)} : {round(self.rad, 2)} : {round(self.fitness, 1)}', 1, 'black')
         # text = FONT.render("{V}, 1, 'black')
         
         # Customizable traits for the user to select in their attributes map
@@ -66,9 +67,7 @@ class Organism:
         win.blit(self.text, (self.x-self.text.get_width()//2, self.y-self.text.get_height()//2))
         
     def is_full(self):
-        if self.num_eaten >=self.FULL_AMOUNT:
-            return True
-        return False
+        return True if self.fitness >= self.FULL_AMOUNT else False
 
     def move(self, xmax, ymax):
         self.x += random.uniform(-self.speed, self.speed)
@@ -90,9 +89,9 @@ class Organism:
 
     def target_move(self, foods, xmax, ymax):
         pos = pygame.math.Vector2(self.x, self.y)
-        closest_food = min([food for food in foods], key=lambda food: pos.distance_to(pygame.math.Vector2(food.x, food.y)))
-
-        fx, fy = closest_food.x, closest_food.y
+        if len(foods) > 0:
+            closest_food = min([food for food in foods], key=lambda food: pos.distance_to(pygame.math.Vector2(food.x, food.y)))
+            fx, fy = closest_food.x, closest_food.y
 
         # fx, fy = foods[0].x, foods[0].y
         dx, dy = fx - self.x, fy - self.y
@@ -116,7 +115,7 @@ class Organism:
     def is_eating(self, obj):
         dist = self.get_distance(obj)
         if dist <= obj.rad + self.rad and self.rad > obj.rad*1.25:
-            self.num_eaten+=1
+            self.fitness+= obj.energy
             return True
         return False
     
@@ -131,4 +130,6 @@ class Organism:
         return child
 
     def think(self):
-        pass
+        af = lambda x: np.tanh(x)               # activation function
+        h1 = af(np.dot(self.wih, self.r_food))  # hidden layer
+        out = af(np.dot(self.who, h1))          # output layer
