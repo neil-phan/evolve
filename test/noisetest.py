@@ -1,11 +1,8 @@
 from opensimplex import OpenSimplex
 import numpy as np
-import pygame
 
 # initialize pygame
-pygame.init()
 WIDTH, HEIGHT = 1000, 1000
-WINDOW = pygame.display.set_mode((WIDTH, HEIGHT))
 
 # noise stuff
 gen = OpenSimplex()
@@ -20,25 +17,16 @@ for x in range(WIDTH):
         nx = x / WIDTH - 0.5
         ny = y / HEIGHT - 0.5
         value[x][y] = noise(ny, nx)
-print(value)
 shade = (value * 255).astype(np.ubyte)
-print('-------------')
-print(shade)
+
+# array needs to be in this shape
 rgb = np.dstack([shade] * 3)
-print('----------------')
-print(rgb)
-test = pygame.surfarray.make_surface(rgb)
+# print(rgb.shape)
 
-# print('value')
-# print(value)
-# print('--------------')
+nuts = gen.noise2array(10, 10)
+print(nuts)
 
-# nv = (value * 255)  # .astype(np.ubyte)
-# rgb = np.dstack([nv] * 3)
-
-# print('rgb')
-# print(rgb)
-# print('------------------')
+# test = pygame.surfarray.make_surface(rgb)
 
 
 def terrain(noise):
@@ -70,23 +58,4 @@ def terrain(noise):
 noise = np.random.random_sample((WIDTH, HEIGHT))
 # print(noise)
 
-#TERRAIN = terrain(noise)
-
-def main():
-    running = True
-    clock = pygame.time.Clock()
-    FPS = 30
-
-    while running:
-        clock.tick(FPS)
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                running = False
-        # WINDOW.fill("white")
-        # pygame.display.update()
-
-        WINDOW.blit(test, (0, 0))
-        pygame.display.update()
-
-
-main()
+# TERRAIN = terrain(noise)

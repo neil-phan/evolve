@@ -1,12 +1,45 @@
-from string import whitespace
-import sys
-import pygame
+from opensimplex import OpenSimplex
 import numpy as np
+import pygame
 
+# initialize pygame
 pygame.init()
+WIDTH, HEIGHT = 1000, 1000
+WINDOW = pygame.display.set_mode((WIDTH, HEIGHT))
 
-WIDTH, HEIGHT = 300, 300
-screen = pygame.display.set_mode((300, 300))
+# noise stuff
+gen = OpenSimplex()
+
+def noise(nx, ny):
+    return gen.noise2(nx, ny) / 2.0 + 0.5
+
+
+value = np.zeros((WIDTH, HEIGHT))
+for x in range(WIDTH):
+    for y in range(HEIGHT):
+        nx = x / WIDTH - 0.5
+        ny = y / HEIGHT - 0.5
+        value[x][y] = noise(ny, nx)
+print(value)
+shade = (value * 255).astype(np.ubyte)
+print('-------------')
+print(shade)
+rgb = np.dstack([shade] * 3)
+print('----------------')
+print(rgb)
+test = pygame.surfarray.make_surface(rgb)
+
+# print('value')
+# print(value)
+# print('--------------')
+
+# nv = (value * 255)  # .astype(np.ubyte)
+# rgb = np.dstack([nv] * 3)
+
+# print('rgb')
+# print(rgb)
+# print('------------------')
+
 
 def terrain(noise):
     CHANNELS = 3
@@ -17,28 +50,43 @@ def terrain(noise):
     MOUNTAIN_LEVEL = 0.75
 
     shade = (noise * 255).astype(np.ubyte)
+    # shade
+    print('shade')
+    print(shade)
+    print('---------------')
 
     rgb = np.dstack([shade] * 3)
-    #rgb[(WATER_LEVEL <= noise) & (noise <= MOUNTAIN_LEVEL), GREEN] = 255
-    #rgb[(noise < WATER_LEVEL), BLUE] = 255
-
+    print('rgb')
+    print(rgb)
+    print('----------------------')
+    rgb[(WATER_LEVEL <= noise) & (noise <= MOUNTAIN_LEVEL), GREEN] = 255
+    rgb[(noise < WATER_LEVEL), BLUE] = 255
+    print('new rgb')
+    print(rgb)
     surf = pygame.surfarray.make_surface(rgb)
     return surf
 
 
 noise = np.random.random_sample((WIDTH, HEIGHT))
-TERRAIN = terrain(noise)
+# print(noise)
 
-test = pygame.surfarray.make_surface([])
+#TERRAIN = terrain(noise)
 
-while 1:
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT:
-            sys.exit()
+def main():
+    running = True
+    clock = pygame.time.Clock()
+    FPS = 30
 
-    # screen.fill("white")
-    # pygame.display.flip()
+    while running:
+        clock.tick(FPS)
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                running = False
+        # WINDOW.fill("white")
+        # pygame.display.update()
 
-    # screen.blit(TERRAIN, (0, 0))
+        WINDOW.blit(test, (0, 0))
+        pygame.display.update()
 
-    pygame.display.update()
+
+main()
