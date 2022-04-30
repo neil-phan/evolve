@@ -1,5 +1,6 @@
 # Organism 
 import math
+from turtle import speed
 import numpy as np
 import random
 import pygame
@@ -8,7 +9,7 @@ pygame.font.init()
 
 class Organism:
     FONT = pygame.font.SysFont('Comic Sans MS', 10)
-    MUTATION_RATE = 0.30
+    MUTATION_RATE = 0.05
     """
     A simple organism with simple traits.
     
@@ -22,7 +23,7 @@ class Organism:
     fitness (int): how much food the organism has consumed
     energy (int): the amount of energy the organism can utilize
     """
-    def __init__(self, color, env_map, coords=None, rnge=None, speed=None, rad=None, h1=None, h2=None):
+    def __init__(self, color, env_map, coords=None, rnge=None, speed=None, rad=None, settings=None, wih=None, who=None):
         """
         Initializes an organism object in a random.uniform (x, y) location on env_map.
         
@@ -36,7 +37,9 @@ class Organism:
         self.range = rnge if rnge != None else random.randrange(100, 800)
         self.color = color
         self.speed = speed if speed != None else random.uniform(1,3)
+        self.cur_speed = float(self.speed / 2)
         self.rad = rad if rad != None else random.uniform(10,30)
+        self.r_speed = random.uniform(0, 720)
         self.fitness = 10.0                                                        # Energy levels
         self.r = random.uniform(0, 360)                                          # Current direction
         if coords == None:
@@ -49,12 +52,24 @@ class Organism:
         self.litter_size = random.randrange(1, 3)
         self.energy = 10
         
-        self.h1 = h1
-        self.h2 = h2
+        self.r_food = 0
+        
+        if wih is None:
+            self.wih = np.random.uniform(-1, 1, (settings['hidden'], settings['input']))
+        else:
+            self.wih = wih
+        
+        if who is None:
+            self.who = np.random.uniform(-1, 1, (settings['output'], settings['hidden']))
+        else:
+            self.who = who
+        
+        self.nn_direction = -1
+        self.nn_velocity = 1
     
     def draw(self, win):
         pygame.draw.circle(win, self.color, (self.x, self.y), self.rad)
-        pygame.draw.circle(win, 'black', (self.x, self.y), self.range, 1)
+        #pygame.draw.circle(win, 'black', (self.x, self.y), self.range, 1)
         win.blit(self.text, (self.x-self.text.get_width()//2, self.y-self.text.get_height()//2))
     
     ########################## NEURAL NETWORK  ##########################
@@ -68,19 +83,24 @@ class Organism:
         return x
     
     # Update the organism's orientation and speed given its current vision
-    # def think(self):         
-    #     h1 = np.tanh(np.dot(self.wih, self.r_food))  # hidden layer
-    #     out = np.tanh(np.dot(self.who, h1))          # output layer
-        
-    #     # UPDATE dv AND dr WITH MLP RESPONSE
-    #     self.nn_dv = float(out[0])   # [-1, 1]  (accelerate=1, deaccelerate=-1)
-    #     self.nn_dr = float(out[1])   # [-1, 1]  (left=1, right=-1)
+    def think(self):         
+        h1 = np.tanh(np.dot(self.wih, self.r_food))  # hidden layers
+        out = np.tanh(np.dot(self.who, h1))          # output layer
+        #print(h1)
+        #print(out)
+        # UPDATE dv AND dr WITH MLP RESPONSE
+        self.nn_direction = float(out[0])   # [-1, 1]  (left=1, right=-1)
+        #print(self.nn_direction)
         
     # Move the organism in its current orientation
     def move(self, xmax, ymax):
+        # Update rotation
+        self.r += self.nn_direction
+        self.r = self.r % 360
         
-        self.x += random.uniform(-self.speed, self.speed)
-        self.y += random.uniform(-self.speed, self.speed)
+        self.x += self.speed * math.cos(math.radians(self.r)) 
+        self.y += self.speed * math.sin(math.radians(self.r))
+        
         # Set the bounds
         if self.x < 0: self.x = 0
         elif self.x > xmax: self.x = xmax
@@ -89,8 +109,6 @@ class Organism:
 
         self.center = (self.x, self.y)
    #######################################################################
-   
-
     
     def length(self, x, y):
         return (x**2 + y**2) ** 0.5
@@ -99,23 +117,27 @@ class Organism:
         _len = self.length(x, y)
         return x/_len, y/_len
 
-    def target_move(self, foods, xmax, ymax):
+    def nearest_food(self, foods, xmax, ymax):
         pos = pygame.math.Vector2(self.x, self.y)
         if len(foods) > 0:
             closest_food = min([food for food in foods], key=lambda food: pos.distance_to(pygame.math.Vector2(food.x, food.y)))
             fx, fy = closest_food.x, closest_food.y
-
-        # fx, fy = foods[0].x, foods[0].y
             dx, dy = fx - self.x, fy - self.y
-            _len = self.length(dx, dy)
-            direction = self.norm(dx, dy)
-            if _len <= self.range:
-                self.x += direction[0] * self.speed
-                self.y += direction[1] * self.speed
-            else:
-                self.move(xmax, ymax)
-        else:
-            self.move(xmax, ymax)
+            pos = self.norm(dx, dy)
+            #print(self.r_food)
+            self.r_food = 360 - (math.atan2(pos[1] - (ymax / 2), pos[0] - (xmax / 2)) * 180 / math.pi)
+            print(self.r_food)
+        # fx, fy = foods[0].x, foods[0].y
+        #     dx, dy = fx - self.x, fy - self.y
+        #     _len = self.length(dx, dy)
+        #     direction = self.norm(dx, dy)
+        #     if _len <= self.range:
+        #         self.x += direction[0] * self.speed
+        #         self.y += direction[1] * self.speed
+        #     else:
+        #         self.move(xmax, ymax)
+        # else:
+        #     self.move(xmax, ymax)
     
     def get_distance(self, obj):
         dist = math.hypot(obj.x - self.x, obj.y-self.y)
@@ -129,11 +151,23 @@ class Organism:
         return False
     
     def reproduce(self):
+        # Update neural network weights
+        wih_new = self.wih
+        who_new = self.who
+        
+        # Mutate random weights
+        row = math.randint(0, len(wih_new))
+        wih_new[row] = wih_new[row] * random.uniform(1-self.MUTATION_RATE, 1+self.MUTATION_RATE)
+        row = math.randint(0, len(who_new))
+        who_new[row] = who_new[row] * random.uniform(1-self.MUTATION_RATE, 1+self.MUTATION_RATE)
+        
+        # Create the child
         child = Organism(self.color, 
                         {'x_max':1, 'y_max':1}, 
                         (self.x+10, self.y+10),
                          self.range * random.uniform(1-self.MUTATION_RATE, 1+self.MUTATION_RATE),
                          self.speed * random.uniform(1-self.MUTATION_RATE, 1+self.MUTATION_RATE),
-                         self.rad * random.uniform(1-self.MUTATION_RATE, 1+self.MUTATION_RATE)
+                         self.rad * random.uniform(1-self.MUTATION_RATE, 1+self.MUTATION_RATE),
+                         wih=wih_new, who=who_new
                         )
         return child

@@ -21,7 +21,7 @@ class Predator:
     vision (int): how far the predator can see in the distance
     fitness (int): the amount of energy the predator can utilize
     """
-    def __init__(self, color, env_map, coords=None, rnge=None, speed=None, rad=None, h1=None, h2=None):
+    def __init__(self, color, env_map, coords=None, rnge=None, speed=None, rad=None, nni=None, nno=None):
         """
         Initializes a predator object in a random.uniform (x, y) location on env_map.
         
@@ -47,8 +47,9 @@ class Predator:
         self.text = self.FONT.render(f'{round(self.speed, 2)} : {round(self.rad, 2)} : {round(self.fitness, 1)}', 1, 'black')
         self.litter_size = random.randrange(1, 3)
         
-        self.h1 = h1
-        self.h2 = h2
+        # Inner and outer layers 
+        self.nni = nni
+        self.nno = nno
     
     def draw(self, win):
         pygame.draw.circle(win, self.color, (self.x, self.y), self.rad)
@@ -87,8 +88,6 @@ class Predator:
 
         self.center = (self.x, self.y)
    #######################################################################
-   
-
     
     def length(self, x, y):
         return (x**2 + y**2) ** 0.5

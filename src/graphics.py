@@ -14,14 +14,14 @@ pygame.display.set_caption("Evolve")
 # Environment variables
 FPS = 60
 BG_COLOR = "white"
-INITIAL_ORGANISM_COUNT = 10
-INITIAL_PRED_COUNT = 2
-INITIAL_FOOD_COUNT = 10
-INITIAL_TREE_COUNT = 5
+INITIAL_ORGANISM_COUNT = 1
+INITIAL_PRED_COUNT = 0
+INITIAL_FOOD_COUNT = 40
+INITIAL_TREE_COUNT = 7
 GEN_TIMER = 15
 
 # Organism variables
-O_FITNESS_COST = 1
+O_FITNESS_COST = 0
 O_REPRODUCTION_COST = 15
 O_LITTER_COST = 5
 O_LABOR_COST = 7
@@ -46,13 +46,11 @@ P_SIZE_COST = 20
 P_SPEED_COST = 4
 
 # Predator neural networks
-# Organism neural networks
 p_settings = {
     'input': 1,
     'hidden': 5,
-    'output': 2
+    'output': 1
 }
-
 
 # Food variables
 ENERGY_MAX = 4
@@ -81,7 +79,7 @@ def make_organisms(N):
         }
     for _ in range (N):
         color = random_color()
-        org = organism.Organism(color, env_map)
+        org = organism.Organism(color, env_map, settings=o_settings)
         orgs.append(org)
     return orgs
 
@@ -149,7 +147,10 @@ def draw(orgs, preds, foods, trees, generation_num):
 
     for org in orgs:
         org.draw(WINDOW)
-        org.target_move(foods, WIDTH, HEIGHT)
+        org.nearest_food(foods, WIDTH, HEIGHT)
+        org.think()
+        org.move(WIDTH, HEIGHT)
+        #print(org.wih)
         
     for pred in preds:
         pred.draw(WINDOW)
