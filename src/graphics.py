@@ -1,5 +1,5 @@
 import pygame
-from simple import organism, food, tree
+from simple import organism, predator, food, tree
 import numpy as np
 import matplotlib.pyplot as plt
 import random
@@ -14,19 +14,23 @@ pygame.display.set_caption("Evolve")
 # Environment variables
 FPS = 60
 BG_COLOR = "white"
-INITIAL_ORGANISM_COUNT = 5
+INITIAL_ORGANISM_COUNT = 10
+INITIAL_PRED_COUNT = 2
 INITIAL_FOOD_COUNT = 10
 INITIAL_TREE_COUNT = 5
 GEN_TIMER = 15
 
-# Organism variables
+# Organism variables and Predator variables
 FITNESS_COST = 1
 REPRODUCTION_COST = 15
 LITTER_COST = 5
 LABOR_COST = 7
-DEATH = 0
+ORG_DEATH = 0
 SIZE_COST = 15
 SPEED_COST = 3
+
+PRED_DEATH = -10
+
 
 # Food variables
 ENERGY_MAX = 4
@@ -48,11 +52,30 @@ DATA = np.empty(0)
 # Create N organisms with unique traits
 def make_organisms(N):
     orgs = []
-    for i in range (N):
+    env_map = {
+        'x_max': WIDTH,
+        'y_max': HEIGHT,
+        
+        }
+    for _ in range (N):
         color = random_color()
-        org = organism.Organism(color, {'x_max': WIDTH, 'y_max': HEIGHT})
+        org = organism.Organism(color, env_map)
         orgs.append(org)
     return orgs
+
+# Create N predators with unique traits
+def make_predators(N):
+    preds = []
+    env_map = {
+        'x_max': WIDTH,
+        'y_max': HEIGHT,
+        
+        }
+    for _ in range (N):
+        color = 'red'
+        pred = predator.Predator(color, env_map)
+        preds.append(pred)
+    return preds
 
 # Create N food objects with energy=1
 def make_foods(N):
@@ -64,7 +87,7 @@ def make_foods(N):
         'y_max': HEIGHT
     }
     
-    for i in range(N):
+    for _ in range(N):
         f = food.Food(attributes)
         foods.append(f)
     return foods
@@ -72,7 +95,7 @@ def make_foods(N):
 # Create N trees with food_energy=ENERGY_MAX
 def make_trees(N):
     trees = []
-    for i in range(N):
+    for _ in range(N):
         t = tree.Tree({'x_max': WIDTH, 'y_max': HEIGHT})
         trees.append(t)
     return trees
@@ -99,12 +122,16 @@ def make_graph(orgs):
     return round(average_speed / count, 2), round(average_size / count, 2), round(average_range / count, 2)
         
 # Draw all the organisms, foods, trees, and statistics
-def draw(orgs, foods, trees, generation_num):
+def draw(orgs, preds, foods, trees, generation_num):
     WINDOW.fill(BG_COLOR)
 
     for org in orgs:
         org.draw(WINDOW)
         org.target_move(foods, WIDTH, HEIGHT)
+        
+    for pred in preds:
+        pred.draw(WINDOW)
+        pred.target_move(orgs, WIDTH, HEIGHT)
 
     for food in foods:
         food.draw(WINDOW)
@@ -117,11 +144,11 @@ def draw(orgs, foods, trees, generation_num):
         for food in foods:
             if org.is_eating(food):
                 foods.remove(food)
-        
-        # FOR CANABALISM
-        # for org2 in orgs:
-        #     if org.is_eating(org2):
-
+                
+    for pred in preds:
+        for org in orgs:
+            if pred.is_eating(org):
+                orgs.remove(org)
 
     speed, size, rng = make_graph(orgs)
     np.append(DATA, (speed, size, rng))
@@ -139,6 +166,7 @@ def main():
     counter = 0
     pygame.time.set_timer(pygame.USEREVENT, 1000)
     orgs = make_organisms(INITIAL_ORGANISM_COUNT)
+    preds = make_predators(INITIAL_PRED_COUNT)
     foods = make_foods(INITIAL_FOOD_COUNT)
     trees = make_trees(INITIAL_TREE_COUNT)
     
@@ -161,13 +189,24 @@ def main():
                 for org in orgs:
                     org.fitness -= FITNESS_COST + float(org.rad / SIZE_COST)
                     + float(org.speed / SPEED_COST) 
-                    print(org.fitness)
+                    #print(org.fitness)
                     if org.fitness >= (REPRODUCTION_COST+(LITTER_COST*org.litter_size)-LITTER_COST):
                         child = org.reproduce()
                         orgs.append(child)
                         org.fitness -= LABOR_COST + (LITTER_COST * org.litter_size) - LITTER_COST
-                    if org.fitness <= DEATH:
+                    if org.fitness <= ORG_DEATH:
                         orgs.remove(org) # DEAD
+                        
+                for pred in preds:
+                    pred.fitness -= FITNESS_COST + float(pred.rad / SIZE_COST) 
+                    + float(pred.speed / SPEED_COST)
+                    if pred.fitness >= (REPRODUCTION_COST+(LITTER_COST*pred.litter_size)-LITTER_COST):
+                        child = pred.reproduce()
+                        preds.append(pred)
+                        pred.fitness -= LABOR_COST + (LITTER_COST * pred.litter_size) - LITTER_COST
+                    if pred.fitness <= PRED_DEATH:
+                        preds.remove(pred) # DEAD
+                    
                         
                 # Every 5 seconds trees spawn food within its radius
                 if counter % TREE_REPLENISH_TIME == 0:
@@ -187,12 +226,12 @@ def main():
                     f.decay += 1
                     if f.decay == FOOD_SPOIL:
                         foods.remove(f)
-                        
+      
             if event.type == pygame.QUIT:
                 running = False
-                
+                           
         # Display all objects on screen
-        draw(orgs, foods, trees, generation_num)
+        draw(orgs, preds, foods, trees, generation_num)
 
 if __name__ == '__main__':
     main()

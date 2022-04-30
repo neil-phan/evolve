@@ -6,25 +6,24 @@ import pygame
 
 pygame.font.init()
 
-class Organism:
+class Predator:
     FONT = pygame.font.SysFont('Comic Sans MS', 10)
     MUTATION_RATE = 0.30
     """
-    A simple organism with simple traits.
+    A vicious predator that hunts down the organisms.
     
     Attributes
     ----------
-    name (str): the name of the organism
-    x (int): the current x position of the organism on env_map
-    y (int): the current y position of the organism on env_map
-    velocity (int): the maximum velocity of the organism
-    vision (int): how far the organism can see in the distance
-    fitness (int): how much food the organism has consumed
-    energy (int): the amount of energy the organism can utilize
+    name (str): the name of the predator
+    x (int): the current x position of the predator on env_map
+    y (int): the current y position of the predator on env_map
+    velocity (int): the maximum velocity of the predator
+    vision (int): how far the predator can see in the distance
+    fitness (int): the amount of energy the predator can utilize
     """
     def __init__(self, color, env_map, coords=None, rnge=None, speed=None, rad=None, h1=None, h2=None):
         """
-        Initializes an organism object in a random.uniform (x, y) location on env_map.
+        Initializes a predator object in a random.uniform (x, y) location on env_map.
         
         Parameters
         ----------
@@ -47,7 +46,6 @@ class Organism:
             self.y = coords[1]
         self.text = self.FONT.render(f'{round(self.speed, 2)} : {round(self.rad, 2)} : {round(self.fitness, 1)}', 1, 'black')
         self.litter_size = random.randrange(1, 3)
-        self.energy = 10
         
         self.h1 = h1
         self.h2 = h2
@@ -99,13 +97,14 @@ class Organism:
         _len = self.length(x, y)
         return x/_len, y/_len
 
-    def target_move(self, foods, xmax, ymax):
+    # Find the closest organism to eat
+    def target_move(self, orgs, xmax, ymax):
         pos = pygame.math.Vector2(self.x, self.y)
-        if len(foods) > 0:
-            closest_food = min([food for food in foods], key=lambda food: pos.distance_to(pygame.math.Vector2(food.x, food.y)))
-            fx, fy = closest_food.x, closest_food.y
+        if len(orgs) > 0:
+            closest_org = min([org for org in orgs], key=lambda org: pos.distance_to(pygame.math.Vector2(org.x, org.y)))
+            fx, fy = closest_org.x, closest_org.y
 
-        # fx, fy = foods[0].x, foods[0].y
+            # fx, fy = foods[0].x, foods[0].y
             dx, dy = fx - self.x, fy - self.y
             _len = self.length(dx, dy)
             direction = self.norm(dx, dy)
@@ -121,13 +120,13 @@ class Organism:
             
     def is_eating(self, obj):
         dist = self.get_distance(obj)
-        if dist <= obj.rad + self.rad and self.rad > obj.rad*1.25:
-            self.fitness+= obj.energy
+        if dist <= obj.rad:
+            self.fitness += obj.energy
             return True
         return False
     
     def reproduce(self):
-        child = Organism(self.color, 
+        child = Predator(self.color, 
                         {'x_max':1, 'y_max':1}, 
                         (self.x+10, self.y+10),
                          self.range * random.uniform(1-self.MUTATION_RATE, 1+self.MUTATION_RATE),
