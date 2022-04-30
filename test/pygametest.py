@@ -1,17 +1,17 @@
-from opensimplex import OpenSimplex
+import opensimplex as simplex
+from PIL import Image
 import numpy as np
 import pygame
 
 # initialize pygame
 pygame.init()
 WIDTH, HEIGHT = 1000, 1000
+FEATURE_SIZE = 100
 WINDOW = pygame.display.set_mode((WIDTH, HEIGHT))
 
 # noise stuff
-gen = OpenSimplex()
-
 def noise(nx, ny):
-    return gen.noise2(nx, ny) / 2.0 + 0.5
+    return simplex.noise2(nx, ny) / 2.0 + 0.5
 
 
 value = np.zeros((WIDTH, HEIGHT))
@@ -72,6 +72,15 @@ noise = np.random.random_sample((WIDTH, HEIGHT))
 
 #TERRAIN = terrain(noise)
 
+im = Image.new('L', (WIDTH, HEIGHT))
+for y in range(0, HEIGHT):
+    for x in range(0, WIDTH):
+        value = simplex.noise2(x / FEATURE_SIZE, y / FEATURE_SIZE)
+        color = int((value + 1) * 128)
+        im.putpixel((x, y), color)
+im.save('noise1.png')
+
+
 def main():
     running = True
     clock = pygame.time.Clock()
@@ -85,7 +94,8 @@ def main():
         # WINDOW.fill("white")
         # pygame.display.update()
 
-        WINDOW.blit(test, (0, 0))
+        image = pygame.image.load('noise1.png')
+        WINDOW.blit(image, (0, 0))
         pygame.display.update()
 
 

@@ -1,4 +1,3 @@
-from opensimplex import OpenSimplex
 from curses import window
 from turtle import width
 import pygame
@@ -6,6 +5,8 @@ from simple import organism, food, tree
 import numpy as np
 import matplotlib.pyplot as plt
 import random
+import opensimplex as simplex
+from PIL import Image
 
 # initialize pygame
 pygame.init()
@@ -13,6 +14,9 @@ pygame.font.init()
 WIDTH, HEIGHT = 1200, 1000
 WINDOW = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption("Evolve")
+
+# Terrain variables
+FEATURE_SIZE = 100
 
 # Environment variables
 FPS = 60
@@ -101,53 +105,21 @@ def make_graph(orgs):
         return 0, 0, 0
     return round(average_speed / count, 2), round(average_size / count, 2), round(average_range / count, 2)
 
-
-# noise stuff
-gen = OpenSimplex()
-
-def noise(nx, ny):
-    return gen.noise2(nx, ny) / 2.0 + 0.5
-
-def help(values):
-    for x in range(WIDTH):
-        for y in range(HEIGHT):
-            nx = x / WIDTH - 0.5
-            ny = y / HEIGHT - 0.5
-            values[x][y] = noise(ny, nx)
-    shade = (values * 255).astype(np.ubyte)
-    rgb = np.dstack([shade] * 3)
-    surf = pygame.surfarray.make_surface(rgb)
-    return surf
-
-
-values = np.zeros((WIDTH, HEIGHT))
-terrain2 = help(values)
-
-# generate canvas with noise function
-def terrain(noise):
-    CHANNELS = 3
-    RED = 0
-    GREEN = 1
-    BLUE = 2
-    WATER_LEVEL = 0.20
-    MOUNTAIN_LEVEL = 0.75
-
-    shade = (noise * 255).astype(np.ubyte)
-    rgb = np.dstack([shade] * 3)
-    rgb[(WATER_LEVEL <= noise) & (noise <= MOUNTAIN_LEVEL), GREEN] = 255
-    rgb[(noise < WATER_LEVEL), BLUE] = 255
-    surf = pygame.surfarray.make_surface(rgb)
-    return surf
-
-
-noise = np.random.random_sample((WIDTH, HEIGHT))
-TERRAIN = terrain(noise)
+# Generate pygame image using a noise function
+def terrain(width, height):
+    im = Image.new('L', (width, height))
+    for y in range(0, HEIGHT):
+        for x in range(0, width):
+            value = simplex.noise2(x / FEATURE_SIZE, y / FEATURE_SIZE)
+            color = int((value + 1) * 128)
+            im.putpixel((x, y), color)
+    im.save('noise1.png')
+    map = pygame.image.load('noise1.png')
+    return map
 
 # Draw all the organisms, foods, trees, and statistics
-def draw(orgs, foods, trees, generation_num):
-    WINDOW.blit(terrain2, (0, 0))
-    # pygame.display.update()
-    # WINDOW.fill(BG_COLOR)
+def draw(orgs, foods, trees, generation_num, terrain):
+    WINDOW.blit(terrain, (0, 0))
 
     for org in orgs:
         org.draw(WINDOW)
@@ -190,6 +162,7 @@ def main():
     trees = make_trees(INITIAL_TREE_COUNT)
 
     generation_num = 1
+    TERRAIN = terrain(WIDTH, HEIGHT)
 
     # creating terrain
 
@@ -243,7 +216,7 @@ def main():
                 running = False
 
         # Display all objects on screen
-        draw(orgs, foods, trees, generation_num)
+        draw(orgs, foods, trees, generation_num, TERRAIN)
 
 
 if __name__ == '__main__':
