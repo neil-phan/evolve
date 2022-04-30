@@ -1,7 +1,7 @@
 from curses import window
 from turtle import width
 import pygame
-from simple import organism, food, tree
+from simple import organism, food, tree, terrain
 import numpy as np
 import matplotlib.pyplot as plt
 import random
@@ -16,7 +16,8 @@ WINDOW = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption("Evolve")
 
 # Terrain variables
-FEATURE_SIZE = 500  # controls "resolution" (higher means more blurry)
+FEATURE_SIZE = 100  # controls "resolution" (higher means more blurry)
+FREQUENCY = 3  # controls noise level (higher means more noise)
 SEED = random.randrange(0, 5000)
 simplex.seed(SEED)
 
@@ -116,12 +117,12 @@ def terrain(width, height):
             color = int((value + 1) * 128)
             im.putpixel((x, y), color)
     im.save('noise1.png')
-    map = pygame.image.load('noise1.png')
+    map = pygame.image.load('terrain.png')
     return map
 
 # Draw all the organisms, foods, trees, and statistics
 def draw(orgs, foods, trees, generation_num, terrain):
-    WINDOW.blit(pygame.image.load('newnoise.png'), (0, 0))
+    WINDOW.blit(terrain, (0, 0))
 
     for org in orgs:
         org.draw(WINDOW)
@@ -164,9 +165,7 @@ def main():
     trees = make_trees(INITIAL_TREE_COUNT)
 
     generation_num = 1
-    TERRAIN = terrain(WIDTH, HEIGHT)
-
-    # creating terrain
+    TERRAIN = terrain.simple_terrain(WIDTH, HEIGHT, FREQUENCY)
 
     while running:
         clock.tick(FPS)  # Caps game frames at desired FPS
