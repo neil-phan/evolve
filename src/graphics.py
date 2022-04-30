@@ -16,7 +16,9 @@ WINDOW = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption("Evolve")
 
 # Terrain variables
-FEATURE_SIZE = 100
+FEATURE_SIZE = 500  # controls "resolution" (higher means more blurry)
+SEED = random.randrange(0, 5000)
+simplex.seed(SEED)
 
 # Environment variables
 FPS = 120
@@ -51,8 +53,6 @@ SUB_FONT = pygame.font.SysFont('Comic Sans MS', 15)
 
 # Graphing variables
 DATA = np.empty(0)
-SEED = random.randrange(0, 5000)
-simplex.seed(SEED)
 
 # Create N organisms with unique traits
 def make_organisms(N):
@@ -121,7 +121,7 @@ def terrain(width, height):
 
 # Draw all the organisms, foods, trees, and statistics
 def draw(orgs, foods, trees, generation_num, terrain):
-    WINDOW.blit(terrain, (0, 0))
+    WINDOW.blit(pygame.image.load('newnoise.png'), (0, 0))
 
     for org in orgs:
         org.draw(WINDOW)
