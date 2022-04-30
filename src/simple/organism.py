@@ -112,6 +112,8 @@ class Organism:
             if _len <= self.range:
                 self.x += direction[0] * self.speed
                 self.y += direction[1] * self.speed
+            else:
+                self.move(xmax, ymax)
         else:
             self.move(xmax, ymax)
     

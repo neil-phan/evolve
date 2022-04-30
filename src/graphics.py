@@ -20,16 +20,38 @@ INITIAL_FOOD_COUNT = 10
 INITIAL_TREE_COUNT = 5
 GEN_TIMER = 15
 
-# Organism variables and Predator variables
-FITNESS_COST = 1
-REPRODUCTION_COST = 15
-LITTER_COST = 5
-LABOR_COST = 7
-ORG_DEATH = 0
-SIZE_COST = 15
-SPEED_COST = 3
+# Organism variables
+O_FITNESS_COST = 1
+O_REPRODUCTION_COST = 15
+O_LITTER_COST = 5
+O_LABOR_COST = 7
+O_DEATH = 0
+O_SIZE_COST = 15
+O_SPEED_COST = 3
 
-PRED_DEATH = -10
+# Organism neural networks
+o_settings = {
+    'input': 1,
+    'hidden': 5,
+    'output': 2
+}
+
+# Predator variables
+P_FITNESS_COST = 1
+P_REPRODUCTION_COST = 20
+P_LITTER_COST = 7
+P_LABOR_COST = 10
+P_DEATH = -10
+P_SIZE_COST = 20
+P_SPEED_COST = 4
+
+# Predator neural networks
+# Organism neural networks
+p_settings = {
+    'input': 1,
+    'hidden': 5,
+    'output': 2
+}
 
 
 # Food variables
@@ -187,24 +209,26 @@ def main():
                     
                 # decrease fitness score for every tick
                 for org in orgs:
-                    org.fitness -= FITNESS_COST + float(org.rad / SIZE_COST)
-                    + float(org.speed / SPEED_COST) 
+                    org.fitness -= O_FITNESS_COST + float(org.rad / O_SIZE_COST)
+                    + float(org.speed / O_SPEED_COST) 
                     #print(org.fitness)
-                    if org.fitness >= (REPRODUCTION_COST+(LITTER_COST*org.litter_size)-LITTER_COST):
+                    if org.fitness >= (O_REPRODUCTION_COST
+                                       +(O_LITTER_COST*org.litter_size)-O_LITTER_COST):
                         child = org.reproduce()
                         orgs.append(child)
-                        org.fitness -= LABOR_COST + (LITTER_COST * org.litter_size) - LITTER_COST
-                    if org.fitness <= ORG_DEATH:
+                        org.fitness -= O_LABOR_COST + (O_LITTER_COST * org.litter_size) - O_LITTER_COST
+                    if org.fitness <= O_DEATH:
                         orgs.remove(org) # DEAD
                         
                 for pred in preds:
-                    pred.fitness -= FITNESS_COST + float(pred.rad / SIZE_COST) 
-                    + float(pred.speed / SPEED_COST)
-                    if pred.fitness >= (REPRODUCTION_COST+(LITTER_COST*pred.litter_size)-LITTER_COST):
+                    pred.fitness -= P_FITNESS_COST + float(pred.rad / P_SIZE_COST) 
+                    + float(pred.speed / P_SPEED_COST)
+                    if pred.fitness >= (P_REPRODUCTION_COST
+                                        + (P_LITTER_COST * pred.litter_size) - P_LITTER_COST):
                         child = pred.reproduce()
                         preds.append(pred)
-                        pred.fitness -= LABOR_COST + (LITTER_COST * pred.litter_size) - LITTER_COST
-                    if pred.fitness <= PRED_DEATH:
+                        pred.fitness -= P_LABOR_COST + (P_LITTER_COST * pred.litter_size) - P_LITTER_COST
+                    if pred.fitness <= P_DEATH:
                         preds.remove(pred) # DEAD
                     
                         
