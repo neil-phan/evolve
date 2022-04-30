@@ -8,7 +8,6 @@ pygame.font.init()
 class Organism:
     FULL_AMOUNT = 2
     FONT = pygame.font.SysFont('Comic Sans MS', 10)
-    MUTATION_RATE = 0.30
 
     # FONT = pygame.font.SysFont('Comic Sans MS', 20)
     """
@@ -27,7 +26,7 @@ class Organism:
     peripheral (int): the angle of view the organism can see
     fitness (int): how much food the organism has consumed
     """
-    def __init__(self, color, env_map, coords=None, range=None, speed=None, rad=None):
+    def __init__(self, color, env_map, mutation_rate, coords=None, range=None, speed=None, rad=None):
         """
         Initializes an organism object in a random.uniform (x, y) location on env_map.
         
@@ -38,18 +37,24 @@ class Organism:
         name (str): the name of the organism, default is None
         """
         # Environmental starting traits
+        self.mutation_rate = mutation_rate
         self.range = range if range != None else random.randrange(100, 800)
+        self.paused = False
         self.color = color
         self.speed = speed if speed != None else random.uniform(1,3)
         self.rad = rad if rad != None else random.uniform(10,30)
         self.num_eaten = 0
         self.r = random.uniform(0, 360)                                       # View
+        self.energy = 100000
+        self.energy_cost = self.get_energy_cost()
+
         if coords == None:
             self.x = random.randrange(0, env_map['x_max'])                       # Starting X 
             self.y = random.randrange(0, env_map['y_max'])                       # Starting Y
         else:
             self.x = coords[0]
             self.y = coords[1]
+
         self.text = self.FONT.render(f'{round(self.speed, 2)} : {round(self.rad, 2)}', 1, 'black')
         # text = FONT.render("{V}, 1, 'black')
         
@@ -76,15 +81,16 @@ class Organism:
         return False
 
     def move(self, xmax, ymax):
-        self.x += random.uniform(-self.speed, self.speed)
-        self.y += random.uniform(-self.speed, self.speed)
-        # Set the bounds
-        if self.x < 0: self.x = 0
-        elif self.x > xmax: self.x = xmax
-        if self.y < 0: self.y = 0
-        elif self.y > ymax: self.y = ymax
+        if not self.paused:
+            self.x += random.uniform(-self.speed, self.speed)
+            self.y += random.uniform(-self.speed, self.speed)
+            # Set the bounds
+            if self.x < 0: self.x = 0
+            elif self.x > xmax: self.x = xmax
+            if self.y < 0: self.y = 0
+            elif self.y > ymax: self.y = ymax
 
-        self.center = (self.x, self.y)
+            self.center = (self.x, self.y)
     
     def length(self, x, y):
         return (x**2 + y**2) ** 0.5
@@ -94,20 +100,22 @@ class Organism:
         return x/_len, y/_len
 
     def target_move(self, foods, xmax, ymax):
-        pos = pygame.math.Vector2(self.x, self.y)
-        closest_food = min([food for food in foods], key=lambda food: pos.distance_to(pygame.math.Vector2(food.x, food.y)))
+        if not self.paused and self.energy > 0:
+            self.energy -= self.energy_cost
+            pos = pygame.math.Vector2(self.x, self.y)
+            closest_food = min([food for food in foods], key=lambda food: pos.distance_to(pygame.math.Vector2(food.x, food.y)))
 
-        fx, fy = closest_food.x, closest_food.y
+            fx, fy = closest_food.x, closest_food.y
 
-        # fx, fy = foods[0].x, foods[0].y
-        dx, dy = fx - self.x, fy - self.y
-        _len = self.length(dx, dy)
-        direction = self.norm(dx, dy)
-        if _len <= self.range:
-            self.x += direction[0] * self.speed
-            self.y += direction[1] * self.speed
-        else:
-            self.move(xmax, ymax)
+            # fx, fy = foods[0].x, foods[0].y
+            dx, dy = fx - self.x, fy - self.y
+            _len = self.length(dx, dy)
+            direction = self.norm(dx, dy)
+            if _len <= self.range:
+                self.x += direction[0] * self.speed
+                self.y += direction[1] * self.speed
+            else:
+                self.move(xmax, ymax)
             
 
     def mouse_move(self):
@@ -123,18 +131,27 @@ class Organism:
         dist = self.get_distance(obj)
         if dist <= obj.rad + self.rad and self.rad > obj.rad*1.25:
             self.num_eaten+=1
+            self.energy+=100000
             return True
         return False
     
     def reproduce(self):
         child = Organism(self.color, 
                         {'x_max':1, 'y_max':1}, 
+                        self.mutation_rate,
                         (self.x+10, self.y+10),
-                         self.range * random.uniform(1-self.MUTATION_RATE, 1+self.MUTATION_RATE),
-                         self.speed * random.uniform(1-self.MUTATION_RATE, 1+self.MUTATION_RATE),
-                         self.rad * random.uniform(1-self.MUTATION_RATE, 1+self.MUTATION_RATE)
+                         self.range * random.uniform(1-self.mutation_rate, 1+self.mutation_rate),
+                         self.speed * random.uniform(1-self.mutation_rate, 1+self.mutation_rate),
+                         self.rad * random.uniform(1-self.mutation_rate, 1+self.mutation_rate)
                         )
         return child
+    
+    def get_energy_cost(self):
+        energy_cost = 0.5 * self.rad * (self.speed**2)
+        return energy_cost
+    
+    def reset_energy(self):
+        self.energy = 100000
 
     def think(self):
         pass
