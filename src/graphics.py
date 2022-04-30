@@ -103,29 +103,25 @@ def make_graph(orgs):
 
 
 # noise stuff
-# gen = OpenSimplex()
+gen = OpenSimplex()
 
-# def noise(nx, ny):
-#     return gen.noise2(nx, ny) / 2.0 + 0.5
+def noise(nx, ny):
+    return gen.noise2(nx, ny) / 2.0 + 0.5
+
+def help(values):
+    for x in range(WIDTH):
+        for y in range(HEIGHT):
+            nx = x / WIDTH - 0.5
+            ny = y / HEIGHT - 0.5
+            values[x][y] = noise(ny, nx)
+    shade = (values * 255).astype(np.ubyte)
+    rgb = np.dstack([shade] * 3)
+    surf = pygame.surfarray.make_surface(rgb)
+    return surf
 
 
-# value = []
-# for y in range(HEIGHT):
-#     value.append([0] * WIDTH)
-#     for x in range(WIDTH):
-#         nx = x / WIDTH - 0.5
-#         ny = y / HEIGHT - 0.5
-#         value[y][x] = noise(nx, ny)
-
-# value = []
-# for x in range(WIDTH):
-#     value.append([0] * HEIGHT)
-#     for y in range(HEIGHT):
-#         nx = x / WIDTH - 0.5
-#         ny = y / HEIGHT - 0.5
-#         value[x][y] = noise(ny, nx)
-# nv = (value * 255)  # .astype(np.ubyte)
-# rgb = np.dstack([nv] * 3)
+values = np.zeros((WIDTH, HEIGHT))
+terrain2 = help(values)
 
 # generate canvas with noise function
 def terrain(noise):
@@ -149,7 +145,7 @@ TERRAIN = terrain(noise)
 
 # Draw all the organisms, foods, trees, and statistics
 def draw(orgs, foods, trees, generation_num):
-    WINDOW.blit(TERRAIN, (0, 0))
+    WINDOW.blit(terrain2, (0, 0))
     # pygame.display.update()
     # WINDOW.fill(BG_COLOR)
 

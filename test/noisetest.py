@@ -4,7 +4,7 @@ import pygame
 
 # initialize pygame
 pygame.init()
-WIDTH, HEIGHT = 1200, 1000
+WIDTH, HEIGHT = 1000, 1000
 WINDOW = pygame.display.set_mode((WIDTH, HEIGHT))
 
 # noise stuff
@@ -14,19 +14,28 @@ def noise(nx, ny):
     return gen.noise2(nx, ny) / 2.0 + 0.5
 
 
-value = []
+value = np.zeros((WIDTH, HEIGHT))
 for x in range(WIDTH):
-    value.append([0] * HEIGHT)
     for y in range(HEIGHT):
         nx = x / WIDTH - 0.5
         ny = y / HEIGHT - 0.5
         value[x][y] = noise(ny, nx)
+print(value)
+shade = (value * 255).astype(np.ubyte)
+print('-------------')
+print(shade)
+rgb = np.dstack([shade] * 3)
+print('----------------')
+print(rgb)
+test = pygame.surfarray.make_surface(rgb)
 
 # print('value')
 # print(value)
 # print('--------------')
-nv = (value * 255)  # .astype(np.ubyte)
-rgb = np.dstack([nv] * 3)
+
+# nv = (value * 255)  # .astype(np.ubyte)
+# rgb = np.dstack([nv] * 3)
+
 # print('rgb')
 # print(rgb)
 # print('------------------')
@@ -73,7 +82,11 @@ def main():
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 running = False
-        WINDOW.fill("white")
+        # WINDOW.fill("white")
+        # pygame.display.update()
+
+        WINDOW.blit(test, (0, 0))
+        pygame.display.update()
 
 
 main()

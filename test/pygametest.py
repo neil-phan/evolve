@@ -29,6 +29,8 @@ def terrain(noise):
 noise = np.random.random_sample((WIDTH, HEIGHT))
 TERRAIN = terrain(noise)
 
+test = pygame.surfarray.make_surface([])
+
 while 1:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
@@ -37,5 +39,6 @@ while 1:
     # screen.fill("white")
     # pygame.display.flip()
 
-    screen.blit(TERRAIN, (0, 0))
+    # screen.blit(TERRAIN, (0, 0))
+
     pygame.display.update()
