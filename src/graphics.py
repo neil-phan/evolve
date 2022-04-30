@@ -19,7 +19,7 @@ pygame.display.set_caption("Evolve")
 FEATURE_SIZE = 100
 
 # Environment variables
-FPS = 60
+FPS = 120
 BG_COLOR = "white"
 INITIAL_ORGANISM_COUNT = 5
 INITIAL_FOOD_COUNT = 10
@@ -51,6 +51,8 @@ SUB_FONT = pygame.font.SysFont('Comic Sans MS', 15)
 
 # Graphing variables
 DATA = np.empty(0)
+SEED = random.randrange(0, 5000)
+simplex.seed(SEED)
 
 # Create N organisms with unique traits
 def make_organisms(N):
@@ -105,7 +107,7 @@ def make_graph(orgs):
         return 0, 0, 0
     return round(average_speed / count, 2), round(average_size / count, 2), round(average_range / count, 2)
 
-# Generate pygame image using a noise function
+# Generate terrain as a pygame image using a noise function
 def terrain(width, height):
     im = Image.new('L', (width, height))
     for y in range(0, HEIGHT):
