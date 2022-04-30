@@ -1,12 +1,11 @@
 from curses import window
 from turtle import width
 import pygame
-from simple import organism, food, tree, terrain
+from simple import organism, food, tree
+from simple.terrain import simple_terrain
 import numpy as np
 import matplotlib.pyplot as plt
 import random
-import opensimplex as simplex
-from PIL import Image
 
 # initialize pygame
 pygame.init()
@@ -18,20 +17,18 @@ pygame.display.set_caption("Evolve")
 # Terrain variables
 FEATURE_SIZE = 100  # controls "resolution" (higher means more blurry)
 FREQUENCY = 3  # controls noise level (higher means more noise)
-SEED = random.randrange(0, 5000)
-simplex.seed(SEED)
 
 # Environment variables
-FPS = 120
+FPS = 60
 BG_COLOR = "white"
-INITIAL_ORGANISM_COUNT = 5
+INITIAL_ORGANISM_COUNT = 10
 INITIAL_FOOD_COUNT = 10
 INITIAL_TREE_COUNT = 5
-GEN_TIMER = 15
+GEN_TIMER = 1000
 
 # Organism variables
 FITNESS_COST = 1
-REPRODUCTION_COST = 15
+REPRODUCTION_COST = 2
 LITTER_COST = 5
 LABOR_COST = 7
 DEATH = 0
@@ -109,16 +106,17 @@ def make_graph(orgs):
     return round(average_speed / count, 2), round(average_size / count, 2), round(average_range / count, 2)
 
 # Generate terrain as a pygame image using a noise function
-def terrain(width, height):
-    im = Image.new('L', (width, height))
-    for y in range(0, HEIGHT):
-        for x in range(0, width):
-            value = simplex.noise2(x / FEATURE_SIZE, y / FEATURE_SIZE)
-            color = int((value + 1) * 128)
-            im.putpixel((x, y), color)
-    im.save('noise1.png')
-    map = pygame.image.load('terrain.png')
-    return map
+# def terrain(width, height):
+#     im = Image.new('L', (width, height))
+#     for y in range(0, HEIGHT):
+#         for x in range(0, width):
+#             value = simplex.noise2(x / FEATURE_SIZE, y / FEATURE_SIZE)
+#             color = int((value + 1) * 128)
+#             im.putpixel((x, y), color)
+#     im.save('noise1.png')
+#     map = pygame.image.load('terrain.png')
+#     return map
+
 
 # Draw all the organisms, foods, trees, and statistics
 def draw(orgs, foods, trees, generation_num, terrain):
@@ -165,7 +163,7 @@ def main():
     trees = make_trees(INITIAL_TREE_COUNT)
 
     generation_num = 1
-    TERRAIN = terrain.simple_terrain(WIDTH, HEIGHT, FREQUENCY)
+    TERRAIN = simple_terrain(WIDTH, HEIGHT, FREQUENCY)
 
     while running:
         clock.tick(FPS)  # Caps game frames at desired FPS

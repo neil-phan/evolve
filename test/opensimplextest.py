@@ -2,7 +2,6 @@ from PIL import Image  # Depends on the Pillow lib
 import numpy as np
 import opensimplex as simplex
 import random
-import math
 
 WIDTH = 1200
 HEIGHT = 1000

@@ -53,8 +53,8 @@ def simple_terrain(width, height, frequency):
             # color = (int(value * 256), int(value * 256), int(value * 256))
             # color = int((value + 1) * 128)
             im.putpixel((x, y), color)
-    im.save('terrain.png')
-    terrain = pygame.image.load('terrain.png')
+    im.save('landscape.png')
+    terrain = pygame.image.load('landscape.png')
     return terrain
 
 # gives much more control over how terrain is generated
