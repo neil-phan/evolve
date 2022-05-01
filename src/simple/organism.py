@@ -6,6 +6,8 @@ import pygame
 
 pygame.font.init()
 
+SPEED = random.uniform(1, 3)
+
 class Organism:
     FONT = pygame.font.SysFont('Comic Sans MS', 10)
 
@@ -39,11 +41,10 @@ class Organism:
         self.range = range if range != None else random.randrange(100, 800)
         self.paused = False
         self.color = color
-        self.speed = speed if speed != None else random.uniform(1, 3)
-        my_speed = self.speed
-        self.speeds = [my_speed, 0.9 * my_speed, 0.8 * my_speed, 0.7 * my_speed,
-                       0.6 * my_speed, 0.5 * my_speed, 0.4 * my_speed, 0.3 * my_speed,
-                       0.2 * my_speed, 0.1 * my_speed, ]
+        self.speed = speed if speed != None else SPEED
+        self.speeds = [SPEED, 0.9 * SPEED, 0.8 * SPEED, 0.7 * SPEED,
+                       0.6 * SPEED, 0.5 * SPEED, 0.4 * SPEED, 0.3 * SPEED,
+                       0.2 * SPEED, 0.1 * SPEED, ]
         self.rad = rad if rad != None else random.uniform(10, 30)
         self.fitness = 0
         # View

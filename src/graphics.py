@@ -1,4 +1,3 @@
-from attr import asdict
 import pygame
 from simple import organism, predator, food, tree
 from simple.terrain import simple_terrain
