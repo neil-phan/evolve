@@ -41,7 +41,6 @@ class Organism:
         self.speed = speed if speed != None else random.uniform(1,3)
         self.rad = rad if rad != None else random.uniform(10,30)
         self.fitness = 0
-        self.num_eaten = 0
         self.r = random.uniform(0, 360)                                       # View
         # self.energy = 100000
         # self.energy_cost = self.get_energy_cost()
@@ -168,19 +167,19 @@ class Organism:
         who_new = self.who
         
         # Mutate random row
-        row = math.randint(0, len(wih_new))
-        wih_new[row] = wih_new[row] * random.uniform(1-self.MUTATION_RATE, 1+self.MUTATION_RATE)
-        row = math.randint(0, len(who_new))
-        who_new[row] = who_new[row] * random.uniform(1-self.MUTATION_RATE, 1+self.MUTATION_RATE)
+        row = random.randrange(0, len(wih_new))
+        wih_new[row] = wih_new[row] * random.uniform(1-self.mutation_rate, 1+self.mutation_rate)
+        row = random.randrange(0, len(who_new))
+        who_new[row] = who_new[row] * random.uniform(1-self.mutation_rate, 1+self.mutation_rate)
         
         # Create the child
         child = Organism(self.color, 
                         {'x_max':1, 'y_max':1}, 
                         self.mutation_rate,
                         (self.x+10, self.y+10),
-                         self.range * random.uniform(1-self.MUTATION_RATE, 1+self.MUTATION_RATE),
-                         self.speed * random.uniform(1-self.MUTATION_RATE, 1+self.MUTATION_RATE),
-                         self.rad * random.uniform(1-self.MUTATION_RATE, 1+self.MUTATION_RATE),
+                         self.range * random.uniform(1-self.mutation_rate, 1+self.mutation_rate),
+                         self.speed * random.uniform(1-self.mutation_rate, 1+self.mutation_rate),
+                         self.rad * random.uniform(1-self.mutation_rate, 1+self.mutation_rate),
                          wih=wih_new, who=who_new
                         )
         return child

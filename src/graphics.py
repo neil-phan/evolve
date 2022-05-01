@@ -52,8 +52,8 @@ FPS = 60
 BG_COLOR = "white"
 INITIAL_ORGANISM_COUNT = 10
 INITIAL_PRED_COUNT = 0
-INITIAL_FOOD_COUNT = 40
-INITIAL_TREE_COUNT = 7
+INITIAL_FOOD_COUNT = 1
+INITIAL_TREE_COUNT = 3
 GEN_TIMER = 20
 
 # Organism variables
@@ -95,8 +95,8 @@ FOOD_REPLENISH_TIME = 5
 FOOD_SPOIL = 20
 
 # Tree variables
-TREE_REPLENISH_TIME = 5
-TREE_REPLENISH_FOOD = 2
+TREE_REPLENISH_TIME = 10
+TREE_REPLENISH_FOOD = 1
 
 # Pygame variables
 FONT = pygame.font.SysFont('Comic Sans MS', 30)
@@ -186,15 +186,15 @@ def make_trees(N):
 
 def generation_done(orgs, speed, size):
     for org in orgs:
-        if org.num_eaten < 1:
+        if org.fitness < 1:
             orgs.remove(org)
         else:
-            if org.num_eaten >= 2:
-                for i in range(org.num_eaten-1):
+            if org.fitness >= 2:
+                for i in range(org.fitness-1):
                     child = org.reproduce()
                     orgs.append(child)
-            org.num_eaten = 0
-            org.reset_energy()
+            org.fitness = 0
+            # org.reset_energy()
     
     # UPDATE GRAPH
     graph.add_point(speed, size)
