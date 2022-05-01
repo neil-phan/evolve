@@ -19,7 +19,7 @@ FREQUENCY = 3  # controls noise level (higher means more noise)
 # Environment variables
 FPS = 60
 BG_COLOR = "white"
-INITIAL_ORGANISM_COUNT = 1
+INITIAL_ORGANISM_COUNT = 10
 INITIAL_PRED_COUNT = 0
 INITIAL_FOOD_COUNT = 40
 INITIAL_TREE_COUNT = 7
@@ -147,14 +147,14 @@ def make_graph(orgs):
 
 # Draw all the organisms, foods, trees, and statistics
 def draw(orgs, preds, foods, trees, generation_num, terrain):
-    WINDOW.blit(terrain, (0, 0))
+    surface = pygame.image.load(terrain)
+    WINDOW.blit(surface, (0, 0))
 
     for org in orgs:
         org.draw(WINDOW)
-        org.nearest_food(foods, WIDTH, HEIGHT)
+        org.nearest_food(foods)
         org.think()
         org.move(WIDTH, HEIGHT)
-        # print(org.wih)
 
     for pred in preds:
         pred.draw(WINDOW)
@@ -199,7 +199,7 @@ def main():
     trees = make_trees(INITIAL_TREE_COUNT)
 
     generation_num = 1
-    TERRAIN = simple_terrain(WIDTH, HEIGHT, FREQUENCY)
+    #TERRAIN = simple_terrain(WIDTH, HEIGHT, FREQUENCY)
 
     while running:
         clock.tick(FPS)  # Caps game frames at desired FPS
@@ -214,34 +214,6 @@ def main():
                 # replenish food in areas without trees
                 if counter % FOOD_REPLENISH_TIME == 0:
                     foods += make_foods(FOOD_REPLENISH_FOOD)
-
-                # decrease fitness score for every tick
-                for org in orgs:
-                    org.fitness -= O_FITNESS_COST + \
-                        float(org.rad / O_SIZE_COST)
-                    + float(org.speed / O_SPEED_COST)
-                    # print(org.fitness)
-                    if org.fitness >= (O_REPRODUCTION_COST
-                                       + (O_LITTER_COST * org.litter_size) - O_LITTER_COST):
-                        child = org.reproduce()
-                        orgs.append(child)
-                        org.fitness -= O_LABOR_COST + \
-                            (O_LITTER_COST * org.litter_size) - O_LITTER_COST
-                    if org.fitness <= O_DEATH:
-                        orgs.remove(org)  # DEAD
-
-                for pred in preds:
-                    pred.fitness -= P_FITNESS_COST + \
-                        float(pred.rad / P_SIZE_COST)
-                    + float(pred.speed / P_SPEED_COST)
-                    if pred.fitness >= (P_REPRODUCTION_COST
-                                        + (P_LITTER_COST * pred.litter_size) - P_LITTER_COST):
-                        child = pred.reproduce()
-                        preds.append(pred)
-                        pred.fitness -= P_LABOR_COST + \
-                            (P_LITTER_COST * pred.litter_size) - P_LITTER_COST
-                    if pred.fitness <= P_DEATH:
-                        preds.remove(pred)  # DEAD
 
                 # Every 5 seconds trees spawn food within its radius
                 if counter % TREE_REPLENISH_TIME == 0:
@@ -266,7 +238,7 @@ def main():
                 running = False
 
         # Display all objects on screen
-        draw(orgs, preds, foods, trees, generation_num, TERRAIN)
+        draw(orgs, preds, foods, trees, generation_num, "landscape.png")
 
 
 if __name__ == '__main__':

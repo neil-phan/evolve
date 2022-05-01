@@ -37,10 +37,8 @@ class Organism:
         self.range = rnge if rnge != None else random.randrange(100, 800)
         self.color = color
         self.speed = speed if speed != None else random.uniform(1,3)
-        self.cur_speed = float(self.speed / 2)
         self.rad = rad if rad != None else random.uniform(10,30)
-        self.r_speed = random.uniform(0, 720)
-        self.fitness = 10.0                                                        # Energy levels
+        self.fitness = 0                                                       # Energy levels
         self.r = random.uniform(0, 360)                                          # Current direction
         if coords == None:
             self.x = random.randrange(0, env_map['x_max'])                       # Starting X 
@@ -49,16 +47,15 @@ class Organism:
             self.x = coords[0]
             self.y = coords[1]
         self.text = self.FONT.render(f'{round(self.speed, 2)} : {round(self.rad, 2)} : {round(self.fitness, 1)}', 1, 'black')
-        self.litter_size = random.randrange(1, 3)
-        self.energy = 10
-        
         self.r_food = 0
         
+        # Inner layer
         if wih is None:
             self.wih = np.random.uniform(-1, 1, (settings['hidden'], settings['input']))
         else:
             self.wih = wih
-        
+            
+        # Outer layer
         if who is None:
             self.who = np.random.uniform(-1, 1, (settings['output'], settings['hidden']))
         else:
@@ -86,8 +83,7 @@ class Organism:
     def think(self):         
         h1 = np.tanh(np.dot(self.wih, self.r_food))  # hidden layers
         out = np.tanh(np.dot(self.who, h1))          # output layer
-        #print(h1)
-        #print(out)
+       #print(out)
         # UPDATE dv AND dr WITH MLP RESPONSE
         self.nn_direction = float(out[0])   # [-1, 1]  (left=1, right=-1)
         #print(self.nn_direction)
@@ -117,27 +113,13 @@ class Organism:
         _len = self.length(x, y)
         return x/_len, y/_len
 
-    def nearest_food(self, foods, xmax, ymax):
+    def nearest_food(self, foods):
         pos = pygame.math.Vector2(self.x, self.y)
         if len(foods) > 0:
             closest_food = min([food for food in foods], key=lambda food: pos.distance_to(pygame.math.Vector2(food.x, food.y)))
             fx, fy = closest_food.x, closest_food.y
-            dx, dy = fx - self.x, fy - self.y
-            pos = self.norm(dx, dy)
-            #print(self.r_food)
-            self.r_food = 360 - (math.atan2(pos[1] - (ymax / 2), pos[0] - (xmax / 2)) * 180 / math.pi)
-            print(self.r_food)
-        # fx, fy = foods[0].x, foods[0].y
-        #     dx, dy = fx - self.x, fy - self.y
-        #     _len = self.length(dx, dy)
-        #     direction = self.norm(dx, dy)
-        #     if _len <= self.range:
-        #         self.x += direction[0] * self.speed
-        #         self.y += direction[1] * self.speed
-        #     else:
-        #         self.move(xmax, ymax)
-        # else:
-        #     self.move(xmax, ymax)
+            dx, dy = self.x - fx, self.y - fy
+            self.r_food = math.degrees(math.atan2(dy, dx))
     
     def get_distance(self, obj):
         dist = math.hypot(obj.x - self.x, obj.y-self.y)
@@ -155,7 +137,7 @@ class Organism:
         wih_new = self.wih
         who_new = self.who
         
-        # Mutate random weights
+        # Mutate random row
         row = math.randint(0, len(wih_new))
         wih_new[row] = wih_new[row] * random.uniform(1-self.MUTATION_RATE, 1+self.MUTATION_RATE)
         row = math.randint(0, len(who_new))
