@@ -1,4 +1,3 @@
-from attr import asdict
 import pygame
 from simple import organism, predator, food, tree
 from simple.terrain import simple_terrain
@@ -56,10 +55,6 @@ GRASS = (183, 217, 104)
 HILL = (157, 201, 88)
 FOREST = (95, 149, 55)
 DARK_FOREST = (77, 124, 45)
-image_string = 'generated_terrains/terrain' + \
-    str(random.randrange(1, 13)) + '.jpg'
-im = Image.open(image_string)
-pix = im.load()
 
 # Environment variables
 FPS = 60
@@ -235,7 +230,7 @@ def make_graph(orgs):
     return round(average_speed / count, 2), round(average_size / count, 2), round(average_range / count, 2)
 
 # Draw all the organisms, foods, trees, and statistics
-def draw(orgs, preds, foods, trees, generation_num, terrain):
+def draw(orgs, preds, foods, trees, generation_num, terrain, pix):
     surface = pygame.image.load(terrain)
     WINDOW.blit(surface, (0, 0))
     for org in orgs:
@@ -324,6 +319,12 @@ def smaller_subtract(count):
         return round(count - 0.05, 2)
     return count
 
+def random_terrain():
+    image_string = '../generated_terrains/terrain' + \
+        str(random.randrange(1, 13)) + '.jpg'
+    im = Image.open(image_string)
+    pix = im.load()
+    return image_string, pix
 
 # create game loop
 def main():
@@ -373,6 +374,9 @@ def main():
     speed, size, rng = make_graph(orgs)
     np.append(DATA, (speed, size, rng))
 
+    # RANDOM TERRAIN
+    image_string, pix = random_terrain()
+
     while running:
         org_num = len(orgs)
         clock.tick(FPS)  # Caps game frames at 60fps
@@ -408,6 +412,7 @@ def main():
                 tree_count = new_tree_count
                 orgs, foods, counter, generation_num, paused, trees = generate_simulation(
                     initial_org_count, mutation_rate, food_count, tree_count)
+                image_string, pix = random_terrain()
 
             if event.type == pygame.USEREVENT:
 
@@ -449,7 +454,7 @@ def main():
             counter = GEN_TIMER
 
         # Display all objects on screen
-        draw(orgs, preds, foods, trees, generation_num, image_string)
+        draw(orgs, preds, foods, trees, generation_num, image_string, pix)
 
         # MENU VARIABLES
         mutation_text_surface = SUB_FONT.render(
