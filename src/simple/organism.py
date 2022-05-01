@@ -104,10 +104,7 @@ class Organism:
             self.energy -= self.energy_cost
             pos = pygame.math.Vector2(self.x, self.y)
             closest_food = min([food for food in foods], key=lambda food: pos.distance_to(pygame.math.Vector2(food.x, food.y)))
-
             fx, fy = closest_food.x, closest_food.y
-
-            # fx, fy = foods[0].x, foods[0].y
             dx, dy = fx - self.x, fy - self.y
             _len = self.length(dx, dy)
             direction = self.norm(dx, dy)

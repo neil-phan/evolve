@@ -155,8 +155,8 @@ def pause_simulation(paused, orgs):
     for org in orgs:
         org.paused = paused
 
-def generate_simulation(new_mutation_rate, food_count):
-    orgs = make_organisms(INITIAL_ORGANISM_COUNT, new_mutation_rate)
+def generate_simulation(org_count new_mutation_rate, food_count):
+    orgs = make_organisms(org_count, new_mutation_rate)
     foods = make_foods(food_count)
     counter = 10
     generation_num = 1
@@ -174,20 +174,29 @@ def subtract_food(food_count):
 def add_food(food_count):
     return food_count+1
 
+def subtract_org(org_count):
+    return org_count-1
+
+def add_org(org_count):
+    return org_count+1
+
 #create game loop
 def main():
     clock = pygame.time.Clock()
     running = True
 
-    counter = 15
+    # VARIABLES
     mutation_rate = 0.50
     new_mutation_rate = mutation_rate
+    food_count = INITIAL_FOOD_COUNT
+    new_food_count = food_count
+    initial_org_count = INITIAL_ORGANISM_COUNT
+    new_initial_org_count = initial_org_count
+
+    counter = 15
     pygame.time.set_timer(pygame.USEREVENT, 1000)
     orgs = make_organisms(INITIAL_ORGANISM_COUNT, mutation_rate)
     foods = make_foods(INITIAL_FOOD_COUNT)
-    food_count = INITIAL_FOOD_COUNT
-    new_food_count = food_count
-
     generation_num = 1
     paused = False
 
@@ -201,21 +210,32 @@ def main():
     food_plus = Button(WINDOW, (offset*0.05, HEIGHT*0.02), (SIM_WIDTH+offset//2+offset*0.30, HEIGHT//2+HEIGHT*0.15), 'green', 'PLUS', 10)
     food_minus = Button(WINDOW, (offset*0.05, HEIGHT*0.02), (SIM_WIDTH+offset//2-offset*0.30, HEIGHT//2+HEIGHT*0.15), 'red', 'SUB', 10)
 
+    org_plus = Button(WINDOW, (offset*0.05, HEIGHT*0.02), (SIM_WIDTH+offset//2+offset*0.35, HEIGHT//2+HEIGHT*0.20), 'green', 'PLUS', 10)
+    org_minus = Button(WINDOW, (offset*0.05, HEIGHT*0.02), (SIM_WIDTH+offset//2-offset*0.35, HEIGHT//2+HEIGHT*0.20), 'red', 'SUB', 10)
+
     
     speed, size, rng = make_graph(orgs)
     while running:
         org_num = len(orgs)
         clock.tick(FPS) #   Caps game frames at 60fps
         for event in pygame.event.get():
+
+            # VARIABLES ACTIONS
             new_food_count = food_plus.action(add_food, new_food_count)
             new_food_count = food_minus.action(subtract_food, new_food_count)
+
+            new_initial_org_count = org_plus.action(add_org, new_initial_org_count)
+            new_initial_org_count = org_minus.action(subtract_org, new_initial_org_count)
+
             if pause_surface_rect.collidepoint(pygame.mouse.get_pos()) and pygame.mouse.get_pressed()[0]:
                 paused = not paused
                 pause_simulation(paused, orgs)
 
+            # UPDATE ALL THE NEW VARIABLES
             if generate_surface_rect.collidepoint(pygame.mouse.get_pos()) and pygame.mouse.get_pressed()[0]:
                 mutation_rate = new_mutation_rate
                 food_count = new_food_count
+                initial_org_count = new_initial_org_count
                 orgs, foods, counter, generation_num, paused = generate_simulation(mutation_rate, food_count)
 
             if plus_text_rect.collidepoint(pygame.mouse.get_pos()) and pygame.mouse.get_pressed()[0]:
@@ -261,15 +281,25 @@ def main():
         food_text_rect = food_text_surface.get_rect(center=(SIM_WIDTH+offset//2, HEIGHT//2+HEIGHT*0.15))
         new_food_text_rect = new_food_text_surface.get_rect(center=(SIM_WIDTH+offset//2, HEIGHT//2+HEIGHT*0.15+15))
 
+        org_text_surface = SUB_FONT.render(f'Current Initial Organism Count: {str(initial_org_count)}', False, 'black')
+        new_org_text_surface = SUB_FONT.render(f'New Initial Food Count: {str(new_initial_org_count)}', False, 'black')
+        org_text_rect = org_text_surface.get_rect(center=(SIM_WIDTH+offset//2, HEIGHT//2+HEIGHT*0.20))
+        new_org_text_rect = new_org_text_surface.get_rect(center=(SIM_WIDTH+offset//2, HEIGHT//2+HEIGHT*0.20+15))
+    
+
         WINDOW.blit(mutation_text_surface, mutation_text_rect)
         WINDOW.blit(new_mutation_text_surface, new_mutation_text_rect)
         WINDOW.blit(plus_text_surface, plus_text_rect)
         WINDOW.blit(minus_surface, minus_rect)
+        WINDOW.blit(org_text_surface, org_text_rect)
+        WINDOW.blit(new_org_text_surface, new_org_text_rect)
 
         WINDOW.blit(food_text_surface, food_text_rect)
         WINDOW.blit(new_food_text_surface, new_food_text_rect)
         food_plus.draw()
         food_minus.draw()
+        org_plus.draw()
+        org_minus.draw()
 
         # GRAPH
         text = FONT.render(f"Generation: {generation_num}", 1, 'black')
