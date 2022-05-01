@@ -54,7 +54,7 @@ INITIAL_ORGANISM_COUNT = 10
 INITIAL_PRED_COUNT = 0
 INITIAL_FOOD_COUNT = 40
 INITIAL_TREE_COUNT = 7
-GEN_TIMER = 15
+GEN_TIMER = 20
 
 # Organism variables
 O_FITNESS_COST = 0
@@ -261,7 +261,7 @@ def pause_simulation(paused, orgs):
 def generate_simulation(org_count, new_mutation_rate, food_count):
     orgs = make_organisms(org_count, new_mutation_rate)
     foods = make_foods(food_count)
-    counter = 10
+    counter = GEN_TIMER
     generation_num = 1
     paused = False
     graph.speed_vals, graph.size_vals = [], []
@@ -296,7 +296,7 @@ def main():
     initial_org_count = INITIAL_ORGANISM_COUNT
     new_initial_org_count = initial_org_count
 
-    counter = 15
+    counter = GEN_TIMER
     pygame.time.set_timer(pygame.USEREVENT, 1000)
     orgs = make_organisms(INITIAL_ORGANISM_COUNT, mutation_rate)
     preds = make_predators(INITIAL_PRED_COUNT)
@@ -384,7 +384,7 @@ def main():
                     np.append(DATA, (speed, size, rng))
                     generation_done(orgs, speed, size)
                     foods = make_foods(food_count)
-                    counter = 15
+                    counter = GEN_TIMER
 
         if len(foods) == 0 and org_num > 0: 
             generation_num+=1
@@ -392,7 +392,7 @@ def main():
             np.append(DATA, (speed, size, rng))
             generation_done(orgs, speed, size)
             foods = make_foods(food_count)
-            counter = 15
+            counter = GEN_TIMER
 
         # Display all objects on screen
         draw(orgs, preds, foods, trees, generation_num, "landscape.png")
