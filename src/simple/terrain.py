@@ -4,6 +4,7 @@ import random
 import pygame
 
 # initialize biome colors
+# outdated, look at environment branch
 WATER = (0, 0, 255)
 BEACH = (249, 209, 153)
 FOREST = (144, 169, 85)
