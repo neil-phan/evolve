@@ -4,3 +4,5 @@ pygame-gui==0.6.4
 numpy==1.22.3
 matplotlib==3.5.1
 kiwisolver==1.4.2
+opensimplex==0.4.2
+Pillow==9.1.0
