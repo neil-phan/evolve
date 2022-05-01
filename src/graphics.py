@@ -66,8 +66,8 @@ FPS = 60
 BG_COLOR = "white"
 INITIAL_ORGANISM_COUNT = 10
 INITIAL_PRED_COUNT = 0
-INITIAL_FOOD_COUNT = 1
-INITIAL_TREE_COUNT = 3
+INITIAL_FOOD_COUNT = 20
+INITIAL_TREE_COUNT = 5
 GEN_TIMER = 20
 
 # Organism variables
@@ -110,7 +110,7 @@ FOOD_SPOIL = 20
 
 # Tree variables
 TREE_REPLENISH_TIME = 10
-TREE_REPLENISH_FOOD = 1
+TREE_REPLENISH_FOOD = 2
 
 # Pygame variables
 FONT = pygame.font.SysFont('Comic Sans MS', 30)
@@ -294,19 +294,21 @@ def pause_simulation(paused, orgs):
     for org in orgs:
         org.paused = paused
 
-def generate_simulation(org_count, new_mutation_rate, food_count):
+def generate_simulation(org_count, new_mutation_rate, food_count, tree_count):
     orgs = make_organisms(org_count, new_mutation_rate)
     foods = make_foods(food_count)
+    trees = make_trees(tree_count)
     counter = GEN_TIMER
     generation_num = 1
     paused = False
     graph.speed_vals, graph.size_vals = [], []
     graph.num_vals = 0
-    return orgs, foods, counter, generation_num, paused
+    return orgs, foods, counter, generation_num, paused, trees
 
 def simulation_over():
     WINDOW.blit(simulation_over_text, simulation_over_text_rect)
 
+<<<<<<< HEAD
 def subtract_food(food_count):
     return food_count - 1
 
@@ -318,29 +320,50 @@ def subtract_org(org_count):
 
 def add_org(org_count):
     return org_count + 1
+=======
+def add(count):
+    return count+1
+
+def smaller_add(count):
+    return round(count+0.05, 2)
+
+def subtract(count):
+    if count > 0:
+        return count-1
+    return count
+
+def smaller_subtract(count):
+    if count > 0:
+        return round(count-0.05, 2)
+    return count
+
+>>>>>>> origin
 
 # create game loop
 def main():
     clock = pygame.time.Clock()
     running = True
 
-    # VARIABLES
+    # MENU VARIABLES
     mutation_rate = 0.50
     new_mutation_rate = mutation_rate
     food_count = INITIAL_FOOD_COUNT
     new_food_count = food_count
     initial_org_count = INITIAL_ORGANISM_COUNT
     new_initial_org_count = initial_org_count
+    tree_count = INITIAL_TREE_COUNT
+    new_tree_count = tree_count
 
     counter = GEN_TIMER
     pygame.time.set_timer(pygame.USEREVENT, 1000)
-    orgs = make_organisms(INITIAL_ORGANISM_COUNT, mutation_rate)
+    orgs = make_organisms(initial_org_count, mutation_rate)
     preds = make_predators(INITIAL_PRED_COUNT)
-    foods = make_foods(INITIAL_FOOD_COUNT)
-    trees = make_trees(INITIAL_TREE_COUNT)
+    foods = make_foods(food_count)
+    trees = make_trees(tree_count)
     generation_num = 1
     paused = False
 
+<<<<<<< HEAD
     plus_text_surface = pygame.Surface((offset * 0.06, HEIGHT * 0.02))
     plus_text_surface.fill('green')
     plus_text_rect = plus_text_surface.get_rect(
@@ -349,6 +372,12 @@ def main():
     minus_surface.fill('red')
     minus_rect = minus_surface.get_rect(
         center=(SIM_WIDTH + offset // 2 - offset * 0.25, HEIGHT // 2 + HEIGHT * 0.1))
+=======
+
+    # MENU BUTTONS
+    mutation_plus = Button(WINDOW, (offset*0.05, HEIGHT*0.02), (SIM_WIDTH+offset//2+offset*0.30, HEIGHT//2+HEIGHT*0.1), 'green', 'PLUS', 10)
+    mutation_minus = Button(WINDOW, (offset*0.05, HEIGHT*0.02), (SIM_WIDTH+offset//2-offset*0.30, HEIGHT//2+HEIGHT*0.1), 'red', 'SUB', 10)
+>>>>>>> origin
 
     food_plus = Button(WINDOW, (offset * 0.05, HEIGHT * 0.02), (SIM_WIDTH + offset //
                        2 + offset * 0.30, HEIGHT // 2 + HEIGHT * 0.15), 'green', 'PLUS', 10)
@@ -360,6 +389,12 @@ def main():
     org_minus = Button(WINDOW, (offset * 0.05, HEIGHT * 0.02), (SIM_WIDTH +
                        offset // 2 - offset * 0.35, HEIGHT // 2 + HEIGHT * 0.20), 'red', 'SUB', 10)
 
+<<<<<<< HEAD
+=======
+    tree_plus = Button(WINDOW, (offset*0.05, HEIGHT*0.02), (SIM_WIDTH+offset//2+offset*0.35, HEIGHT//2+HEIGHT*0.25), 'green', 'PLUS', 10)
+    tree_minus = Button(WINDOW, (offset*0.05, HEIGHT*0.02), (SIM_WIDTH+offset//2-offset*0.35, HEIGHT//2+HEIGHT*0.25), 'red', 'SUB', 10)
+    
+>>>>>>> origin
     speed, size, rng = make_graph(orgs)
     np.append(DATA, (speed, size, rng))
 
@@ -371,13 +406,24 @@ def main():
                 running = False
 
             # VARIABLES ACTIONS
-            new_food_count = food_plus.action(add_food, new_food_count)
-            new_food_count = food_minus.action(subtract_food, new_food_count)
+            new_mutation_rate = mutation_plus.action(smaller_add, new_mutation_rate)
+            new_mutation_rate = mutation_minus.action(smaller_subtract, new_mutation_rate)
 
+            new_food_count = food_plus.action(add, new_food_count)
+            new_food_count = food_minus.action(subtract, new_food_count)
+
+            new_initial_org_count = org_plus.action(add, new_initial_org_count)
+            new_initial_org_count = org_minus.action(subtract, new_initial_org_count)
+
+<<<<<<< HEAD
             new_initial_org_count = org_plus.action(
                 add_org, new_initial_org_count)
             new_initial_org_count = org_minus.action(
                 subtract_org, new_initial_org_count)
+=======
+            new_tree_count = tree_plus.action(add, new_tree_count)
+            new_tree_count = tree_minus.action(subtract, new_tree_count)
+>>>>>>> origin
 
             if pause_surface_rect.collidepoint(pygame.mouse.get_pos()) and pygame.mouse.get_pressed()[0]:
                 paused = not paused
@@ -388,15 +434,14 @@ def main():
                 mutation_rate = new_mutation_rate
                 food_count = new_food_count
                 initial_org_count = new_initial_org_count
+<<<<<<< HEAD
                 orgs, foods, counter, generation_num, paused = generate_simulation(
                     initial_org_count, mutation_rate, food_count)
+=======
+                tree_count = new_tree_count
+                orgs, foods, counter, generation_num, paused, trees = generate_simulation(initial_org_count, mutation_rate, food_count, tree_count)
+>>>>>>> origin
 
-            if plus_text_rect.collidepoint(pygame.mouse.get_pos()) and pygame.mouse.get_pressed()[0]:
-                new_mutation_rate = round(new_mutation_rate + 0.05, 2)
-
-            if minus_rect.collidepoint(pygame.mouse.get_pos()) and pygame.mouse.get_pressed()[0]:
-                if new_mutation_rate > 0:
-                    new_mutation_rate = round(new_mutation_rate - 0.05, 2)
 
             if event.type == pygame.USEREVENT:
 
@@ -441,6 +486,7 @@ def main():
         draw(orgs, preds, foods, trees, generation_num, image_string)
 
         # MENU VARIABLES
+<<<<<<< HEAD
         mutation_text_surface = SUB_FONT.render(
             f'Current Mutation Rate: {str(mutation_rate)}', False, 'black')
         new_mutation_text_surface = SUB_FONT.render(
@@ -467,20 +513,47 @@ def main():
             center=(SIM_WIDTH + offset // 2, HEIGHT // 2 + HEIGHT * 0.20))
         new_org_text_rect = new_org_text_surface.get_rect(
             center=(SIM_WIDTH + offset // 2, HEIGHT // 2 + HEIGHT * 0.20 + 15))
+=======
+        mutation_text_surface = SUB_FONT.render(f'Current Mutation Rate: {str(mutation_rate)}', False, 'black')
+        new_mutation_text_surface = SUB_FONT.render(f'New Mutation Rate: {str(new_mutation_rate)}', False, 'black')
+        mutation_text_rect = mutation_text_surface.get_rect(center=(SIM_WIDTH+offset//2, HEIGHT//2+HEIGHT*0.1))
+        new_mutation_text_rect = new_mutation_text_surface.get_rect(center=(SIM_WIDTH+offset//2, HEIGHT//2+HEIGHT*0.1+15))
 
+        food_text_surface = SUB_FONT.render(f'Current Initial Food Count: {str(food_count)}', False, 'black')
+        new_food_text_surface = SUB_FONT.render(f'New Initial Food Count: {str(new_food_count)}', False, 'black')
+        food_text_rect = food_text_surface.get_rect(center=(SIM_WIDTH+offset//2, HEIGHT//2+HEIGHT*0.15))
+        new_food_text_rect = new_food_text_surface.get_rect(center=(SIM_WIDTH+offset//2, HEIGHT//2+HEIGHT*0.15+15))
+
+        org_text_surface = SUB_FONT.render(f'Current Initial Organism Count: {str(initial_org_count)}', False, 'black')
+        new_org_text_surface = SUB_FONT.render(f'New Initial Food Count: {str(new_initial_org_count)}', False, 'black')
+        org_text_rect = org_text_surface.get_rect(center=(SIM_WIDTH+offset//2, HEIGHT//2+HEIGHT*0.20))
+        new_org_text_rect = new_org_text_surface.get_rect(center=(SIM_WIDTH+offset//2, HEIGHT//2+HEIGHT*0.20+15))
+
+        tree_text_surface = SUB_FONT.render(f'Current Initial Tree Count: {str(tree_count)}', False, 'black')
+        new_tree_text_surface = SUB_FONT.render(f'New Initial Tree Count: {str(new_tree_count)}', False, 'black')
+        tree_text_rect = tree_text_surface.get_rect(center=(SIM_WIDTH+offset//2, HEIGHT//2+HEIGHT*0.25))
+        new_tree_text_rect = new_tree_text_surface.get_rect(center=(SIM_WIDTH+offset//2, HEIGHT//2+HEIGHT*0.25+15))
+    
+>>>>>>> origin
+
+        # DRAW MENU BUTTONS AND TEXT
         WINDOW.blit(mutation_text_surface, mutation_text_rect)
         WINDOW.blit(new_mutation_text_surface, new_mutation_text_rect)
-        WINDOW.blit(plus_text_surface, plus_text_rect)
-        WINDOW.blit(minus_surface, minus_rect)
         WINDOW.blit(org_text_surface, org_text_rect)
         WINDOW.blit(new_org_text_surface, new_org_text_rect)
-
         WINDOW.blit(food_text_surface, food_text_rect)
         WINDOW.blit(new_food_text_surface, new_food_text_rect)
+        WINDOW.blit(tree_text_surface, tree_text_rect)
+        WINDOW.blit(new_tree_text_surface, new_tree_text_rect)
+
+        mutation_plus.draw()
+        mutation_minus.draw()
         food_plus.draw()
         food_minus.draw()
         org_plus.draw()
         org_minus.draw()
+        tree_plus.draw()
+        tree_minus.draw()
 
         # GRAPH
         text = FONT.render(f"Generation: {generation_num}", 1, 'black')
