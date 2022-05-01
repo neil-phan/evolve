@@ -27,18 +27,19 @@ def main():
     im.show()
 
 
-FREQUENCY = 3
-WATER = (0, 0, 255)
-BEACH = (249, 209, 153)
-FOREST = (144, 169, 85)
-JUNGLE = (79, 119, 45)
-SAVANNAH = (49, 87, 44)
-DESERT = (236, 243, 158)
-SNOW = (240, 234, 210)
+FREQUENCY = 2
+MUD = (112, 84, 62)  # this can also be water
+BEACH = (212, 209, 181)
+GRASS = (183, 217, 104)
+HILL = (157, 201, 88)
+FOREST = (95, 149, 55)
+DARK_FOREST = (77, 124, 45)
 
 def main2():
+    simplex.seed(random.randrange(0, 1000000))
     print('Generating 2D image...')
     im = Image.new('RGB', (WIDTH, HEIGHT))
+    values = []
     for y in range(0, HEIGHT):
         for x in range(0, WIDTH):
             nx = x / WIDTH - 0.5
@@ -48,25 +49,27 @@ def main2():
             + 0.5 * noise(FREQUENCY * 2 * nx, FREQUENCY * 2 * ny)
             + 0.25 * noise(FREQUENCY * 4 * nx, FREQUENCY * 4 * ny)
             value = e / (1 + 0.5 + 0.25)
-            if value < 0.1:
-                color = WATER
-            elif value < 0.2:
+            values.append(value)
+            if value < 0.075:
+                color = MUD
+            elif value < 0.15:
                 color = BEACH
+            elif value < 0.225:
+                color = GRASS
             elif value < 0.3:
+                color = HILL
+            elif value < 0.375:
                 color = FOREST
-            elif value < 0.5:
-                color = JUNGLE
-            elif value < 0.7:
-                color = SAVANNAH
-            elif value < 0.9:
-                color = DESERT
             else:
-                color = SNOW
+                color = DARK_FOREST
             # color = (int(value * 256), int(value * 256), int(value * 256))
             # color = int((value + 1) * 128)
             im.putpixel((x, y), color)
-    im.save('newnoise.png')
-    # im.show()
+    # im.save('newnoise.png')
+    values.sort()
+    print(values[0])
+    print(values[len(values) - 1])
+    im.show()
 
 # more complex noise generation
 # values are super low though for some reason
@@ -74,12 +77,14 @@ def main3():
     im = Image.new('RGB', (WIDTH, HEIGHT))
     genE = simplex.OpenSimplex(random.randrange(0, 1000))
     genM = simplex.OpenSimplex(random.randrange(0, 1000))
+    values = []
 
     def noiseE(nx, ny):
         return genE.noise2(nx, ny) / 2 + 0.5
 
     def noiseM(nx, ny):
         return genM.noise2(nx, ny) / 2 + 0.5
+
     for y in range(0, HEIGHT):
         for x in range(0, WIDTH):
             nx = x / WIDTH - 0.5
@@ -93,27 +98,26 @@ def main3():
             e = e / (0.56 + 0.42 + 0.27 + 0.13 + 0.06 + 0.03)
             value = e ** 4.80
             # value = e / (1 + 0.5 + 0.25)
-            # print(value)
+            values.append(value)
             if abs(value) < 0.005:
-                color = WATER
-            elif abs(value) < 0.02:
+                color = MUD
+            elif abs(value) < 0.0375:
                 color = BEACH
-            elif abs(value) < 0.03:
-                color = FOREST
-            elif abs(value) < 0.05:
-                color = JUNGLE
             elif abs(value) < 0.07:
-                color = SAVANNAH
-            elif abs(value) < 0.09:
-                color = DESERT
+                color = GRASS
+            elif abs(value) < 0.1025:
+                color = HILL
+            elif abs(value) < 0.135:
+                color = FOREST
             else:
-                color = SNOW
+                color = DARK_FOREST
             # color = (int(value * 256), int(value * 256), int(value * 256))
             im.putpixel((x, y), color)
+
     im.show()
 
 
 if __name__ == '__main__':
     # main()
-    # main2()
-    main3()
+    main2()
+    # main3()
