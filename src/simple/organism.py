@@ -1,6 +1,5 @@
 # Organism 
 import math
-from turtle import speed
 import numpy as np
 import random
 import pygame
