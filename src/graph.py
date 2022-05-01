@@ -1,6 +1,9 @@
+from re import I
 import pygame
 
 class Graph():
+    FONT = pygame.font.SysFont('Comic Sans MS', 15)
+
     def __init__(self, win, bounds):
         self.win = win
         self.x_bounds = bounds[0]
@@ -19,14 +22,22 @@ class Graph():
         return max_y   
     
     def draw(self):
-        # X AXIS 
         start_x = self.x_bounds[0]
         end_x = self.x_bounds[1]
         start_y = self.y_bounds[0]
         end_y = self.y_bounds[1]
 
+        # AXES
         pygame.draw.line(self.win, 'black', (start_x+10, start_y-10), (end_x-10, start_y-10), 2)
         pygame.draw.line(self.win, 'black', (start_x+10, start_y-10), (start_x+10, end_y+10), 2)
+
+        # LEGEND
+        speed_text = self.FONT.render('Speed', False, 'green')
+        size_text = self.FONT.render('Size', False, 'red')
+        speed_text_rect = speed_text.get_rect(topright=(self.x_bounds[1], self.y_bounds[1]+10))
+        size_text_rect = size_text.get_rect(topright=(self.x_bounds[1], self.y_bounds[1]+25))
+        self.win.blit(speed_text, speed_text_rect)
+        self.win.blit(size_text, size_text_rect)
 
         # DRAW POINTS
         self.plot_vals()
