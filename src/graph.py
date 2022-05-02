@@ -3,6 +3,7 @@ import pygame
 
 class Graph():
     FONT = pygame.font.SysFont('Comic Sans MS', 15)
+    SUB_FONT = pygame.font.SysFont('Comic Sans MS', 11)
 
     def __init__(self, win, bounds):
         self.win = win
@@ -28,14 +29,20 @@ class Graph():
         end_y = self.y_bounds[1]
 
         # AXES
+        xaxis_text = self.SUB_FONT.render('Generation', False, 'black')
+        yaxis_text = self.SUB_FONT.render('Relative Amount', False, 'black')
+        yaxis_text_rect = yaxis_text.get_rect(bottomleft=(self.x_bounds[0]+15, self.y_bounds[1]+20))
+        xaxis_text_rect = xaxis_text.get_rect(midbottom=(self.x_bounds[0]+self.width//2 + 10, self.y_bounds[0]+3))
+        self.win.blit(xaxis_text, xaxis_text_rect)
+        self.win.blit(yaxis_text, yaxis_text_rect)
         pygame.draw.line(self.win, 'black', (start_x+10, start_y-10), (end_x-10, start_y-10), 2)
         pygame.draw.line(self.win, 'black', (start_x+10, start_y-10), (start_x+10, end_y+10), 2)
 
         # LEGEND
         speed_text = self.FONT.render('Speed', False, 'green')
         size_text = self.FONT.render('Size', False, 'red')
-        speed_text_rect = speed_text.get_rect(topright=(self.x_bounds[1], self.y_bounds[1]+10))
-        size_text_rect = size_text.get_rect(topright=(self.x_bounds[1], self.y_bounds[1]+25))
+        speed_text_rect = speed_text.get_rect(topright=(self.x_bounds[1]-10, self.y_bounds[1]+10))
+        size_text_rect = size_text.get_rect(topright=(self.x_bounds[1]-10, self.y_bounds[1]+25))
         self.win.blit(speed_text, speed_text_rect)
         self.win.blit(size_text, size_text_rect)
 

@@ -61,8 +61,6 @@ class Organism:
             self.x = coords[0]
             self.y = coords[1]
 
-        self.text = self.FONT.render(
-            f'{round(self.speed, 2)} : {round(self.rad, 2)} : {round(self.fitness, 1)}', 1, 'black')
         self.r_food = 0
 
         # Inner layer
@@ -85,8 +83,10 @@ class Organism:
     def draw(self, win):
         pygame.draw.circle(win, self.color, (self.x, self.y), self.rad)
         #pygame.draw.circle(win, 'black', (self.x, self.y), self.range, 1)
-        win.blit(self.text, (self.x - self.text.get_width() //
-                 2, self.y - self.text.get_height() // 2))
+        text = self.FONT.render(
+            f'{round(self.speed, 2)} : {round(self.rad, 2)} : {round(self.fitness, 1)}', 1, 'black')
+        win.blit(text, (self.x - text.get_width() //
+                 2, self.y - text.get_height() // 2))
 
     def change_speed(self, new_speed):
         self.speed = new_speed
