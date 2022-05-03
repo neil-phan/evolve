@@ -128,11 +128,15 @@ pause_surface = pygame.Surface((offset * 0.30, HEIGHT * 0.05))
 pause_surface.fill('antiquewhite3')
 pause_surface_rect = pause_surface.get_rect(
     bottomleft=(WIDTH - offset // 2 + 50, HEIGHT - 20))
+pause_text = SUB_FONT.render('Pause', False, 'black')
+pause_text_rect = pause_text.get_rect(center=(WIDTH-offset//2+50+offset*0.15, HEIGHT-20-HEIGHT*0.025))
 
 generate_surface = pygame.Surface((offset * 0.30, HEIGHT * 0.05))
 generate_surface.fill('antiquewhite2')
 generate_surface_rect = generate_surface.get_rect(
     bottomright=(WIDTH - (offset // 2) - 50, HEIGHT - 20))
+generate_text = SUB_FONT.render('Generate', False, 'black')
+generate_text_rect = generate_text.get_rect(center=(WIDTH-offset//2-50-offset*0.15, HEIGHT-20-HEIGHT*0.025))
 
 # GRAPH STUFF
 graph = graph.Graph(WINDOW, ((SIM_WIDTH, WIDTH), (HEIGHT // 2, 0)))
@@ -284,6 +288,8 @@ def draw(orgs, preds, foods, trees, generation_num, terrain, pix):
     WINDOW.blit(variables_text_surface, variables_text_surface_rect)
     WINDOW.blit(pause_surface, pause_surface_rect)
     WINDOW.blit(generate_surface, generate_surface_rect)
+    WINDOW.blit(pause_text, pause_text_rect)
+    WINDOW.blit(generate_text, generate_text_rect)
 
 def pause_simulation(paused, orgs):
     for org in orgs:
