@@ -41,3 +41,14 @@ on the bottom left of this panel.  The button on the bottom right will pause the
 ![Simulation Two](./example-sims/sim2.png)
 
 ![Simulation Three](./example-sims/sim3.png)
+
+## Possible Features in the Future
+In the amount of time we had for the project, our group wasn't able to fully implement all the features we had in mind. This is something we may work on in the future, and many of them are already partially completed in the code. Here is a list of features we may work on:
+  * More inputs and outputs for organism neural networks (thirst, metabolism, other tradeoffs in ecology)
+  * More complex interactions between organisms
+  * Predator-prey relations
+  * Slider to speed up progression of generations
+  * Greater complexity to reproduction (expanding beyond asexual)
+  * Giving an evolution structure to trees (which will lead to plant-herbivore trends)
+  * More complex terrain generation (going beyond the current noise functions) with bodies of water
+
